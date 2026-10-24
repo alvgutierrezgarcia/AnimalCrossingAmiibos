@@ -307,22 +307,87 @@ const state = {
   favs: new Set(), island: [], showFilters: false
 };
 const LS_KEY = "acnh-amiibo-v1";
+// t: ms of the last change to favs/island; u: account this browser last synced with
+let localT = 0, syncedUid = null;
 try {
   const saved = JSON.parse(localStorage.getItem(LS_KEY) || "null");
-  if (saved) { state.favs = new Set(saved.favs || []); state.island = (saved.island || []).filter(n => BY_NUM.get(n)?.v); }
+  if (saved) { state.favs = new Set(saved.favs || []); state.island = (saved.island || []).filter(n => BY_NUM.get(n)?.v); localT = saved.t || 0; syncedUid = saved.u || null; }
   const ui = JSON.parse(localStorage.getItem(LS_KEY + "-ui") || "null");
   if (ui) { state.sort = ui.sort || state.sort; state.series = ui.series || 0; }
 } catch (e) {}
 
 function saveLocal() {
-  try { localStorage.setItem(LS_KEY, JSON.stringify({ favs: [...state.favs], island: state.island })); } catch (e) {}
+  try { localStorage.setItem(LS_KEY, JSON.stringify({ favs: [...state.favs], island: state.island, t: localT, u: syncedUid })); } catch (e) {}
 }
 function saveUi() {
   try { localStorage.setItem(LS_KEY + "-ui", JSON.stringify({ sort: state.sort, series: state.series })); } catch (e) {}
 }
 
-// favs/island changed; the hook where cloud sync will plug in
-function scheduleWrite() { saveLocal(); }
+// ---------- cloud sync (Supabase) ----------
+// localStorage stays the source for rendering and works offline; the account row is
+// one whole document per user and the most recent change wins.
+const SB_URL = "https://quyqqdumxfhjruzzsqlu.supabase.co";
+const SB_KEY = "sb_publishable_Weq63kyeSBlkK5JRuVa6YA_N7BoVSex"; // public by design; rows are protected by RLS
+const SB_LIB = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js";
+const syncEl = document.getElementById("sync");
+const cloud = { status: "", step: "", email: "", msg: "" };
+let sb = null, uid = null, userEmail = "", dirty = false, pushing = false, pushTimer = null;
+
+function scheduleWrite() {
+  localT = Date.now(); saveLocal();
+  if (!uid) return;
+  dirty = true; clearTimeout(pushTimer); pushTimer = setTimeout(push, 700);
+}
+function applyAlbum(favs, island, t) {
+  state.favs = new Set(favs); state.island = island.filter(n => BY_NUM.get(n)?.v).slice(0, MAX_ISLAND);
+  localT = t; render();
+}
+async function pull() {
+  if (!uid || pushing) return;
+  const { data, error } = await sb.from("amiibo_album").select("favs,island,updated_at").maybeSingle();
+  if (error) return setCloud("error");
+  const remoteT = data ? Date.parse(data.updated_at) : 0;
+  if (data && syncedUid !== uid) {
+    // first sync of this browser with this account: keep what both sides have
+    applyAlbum([...new Set([...data.favs, ...state.favs])], [...new Set([...data.island, ...state.island])], Date.now());
+    dirty = true;
+  } else if (data && remoteT > localT && !dirty) applyAlbum(data.favs, data.island, remoteT);
+  else if (!data || localT > remoteT) dirty = true;
+  syncedUid = uid; saveLocal();
+  if (dirty) push(); else setCloud("ok");
+}
+async function push() {
+  if (!uid || pushing) return;
+  clearTimeout(pushTimer); pushing = true; dirty = false; setCloud("syncing");
+  const { error } = await sb.from("amiibo_album").upsert({
+    user_id: uid, favs: [...state.favs].sort((a, b) => a - b), island: state.island, updated_at: new Date(localT).toISOString()
+  });
+  pushing = false;
+  if (error) { dirty = true; return setCloud("error"); }
+  if (dirty) push(); else setCloud("ok");
+}
+function setCloud(status) { cloud.status = status; renderSync(); }
+
+function renderSync() {
+  if (!sb || !uid) { syncEl.textContent = "Tus favoritos y tu isla se guardan en este navegador."; return; }
+  const msg = { syncing: "Sincronizando con tu cuenta…", ok: "Sincronizado con tu cuenta", error: "Sin conexión con tu cuenta; los cambios quedan en este navegador y se subirán al volver." }[cloud.status] || "Conectando con tu cuenta…";
+  syncEl.innerHTML = `${msg}${cloud.status === "ok" ? ` · ${esc(userEmail)}` : ""}`;
+}
+
+function initCloud() {
+  sb = supabase.createClient(SB_URL, SB_KEY);
+  sb.auth.onAuthStateChange((event, session) => {
+    const id = session?.user?.id || null;
+    userEmail = session?.user?.email || "";
+    if (id !== uid) { uid = id; dirty = false; cloud.status = ""; if (uid) setTimeout(pull); } // outside the callback, as supabase-js asks
+    renderSync();
+  });
+}
+const sbScript = document.createElement("script");
+sbScript.src = SB_LIB; sbScript.onload = initCloud;
+document.head.append(sbScript);
+addEventListener("online", () => dirty ? push() : pull());
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") dirty ? push() : pull(); });
 
 // ---------- actions ----------
 const toastEl = document.getElementById("toast");
