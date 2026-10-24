@@ -263,7 +263,7 @@ main { padding-top: 14px; }
   </div>
 
   <main id="main"></main>
-  <p class="sync" id="sync"></p>
+  <p class="sync" id="sync">Tus favoritos y tu isla se guardan en este navegador.</p>
 </div>
 
 <div class="scrim" id="scrim" hidden></div>
@@ -321,59 +321,8 @@ function saveUi() {
   try { localStorage.setItem(LS_KEY + "-ui", JSON.stringify({ sort: state.sort, series: state.series })); } catch (e) {}
 }
 
-// ---------- cloud sync (per-viewer private doc) ----------
-let docRef = null, writing = false, pendingWrite = false, writeTimer = null, lastWritten = "";
-const syncEl = document.getElementById("sync");
-function payload() { return { favs: [...state.favs].sort((a, b) => a - b), island: state.island }; }
-function scheduleWrite() {
-  saveLocal();
-  if (!docRef) return;
-  clearTimeout(writeTimer);
-  writeTimer = setTimeout(flush, 700);
-}
-async function flush() {
-  if (!docRef) return;
-  if (writing) { pendingWrite = true; return; }
-  const body = payload();
-  const sig = JSON.stringify(body);
-  if (sig === lastWritten) return;
-  writing = true;
-  try { await docRef.set(body); lastWritten = sig; syncEl.textContent = "Guardado en tu cuenta. Lo verás igual en el móvil y en el ordenador."; }
-  catch (e) { syncEl.textContent = "No se pudo guardar en tu cuenta; los cambios quedan en este navegador."; }
-  writing = false;
-  if (pendingWrite) { pendingWrite = false; flush(); }
-}
-(async () => {
-  syncEl.textContent = "Tus favoritos y tu isla se guardan en este navegador.";
-  if (!window.claude?.use) return;
-  try {
-    const [db, user] = await Promise.all([claude.use("db"), claude.use("user")]);
-    if (!db || !user) return;
-    const uid = await user.id();
-    if (!uid) return;
-    docRef = db.doc("data/users/" + uid + "/album");
-    let first = true;
-    docRef.onSnapshot(snap => {
-      if (snap.exists) {
-        const d = snap.data();
-        const sig = JSON.stringify({ favs: d.favs || [], island: d.island || [] });
-        lastWritten = sig;
-        if (!snap.metadata.hasPendingWrites) {
-          state.favs = new Set(d.favs || []);
-          state.island = (d.island || []).filter(n => BY_NUM.get(n)?.v);
-          saveLocal();
-          render();
-        }
-        syncEl.textContent = "Guardado en tu cuenta. Lo verás igual en el móvil y en el ordenador.";
-      } else if (first && (state.favs.size || state.island.length)) {
-        flush();
-      } else {
-        syncEl.textContent = "Tus favoritos y tu isla se guardarán en tu cuenta.";
-      }
-      first = false;
-    }, () => { syncEl.textContent = "Sin conexión con tu cuenta; los cambios quedan en este navegador."; });
-  } catch (e) {}
-})();
+// favs/island changed; the hook where cloud sync will plug in
+function scheduleWrite() { saveLocal(); }
 
 // ---------- actions ----------
 const toastEl = document.getElementById("toast");
