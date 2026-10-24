@@ -383,11 +383,11 @@ function renderSync() {
     const msg = { syncing: "Sincronizando con tu cuenta…", ok: "Sincronizado con tu cuenta", error: "Sin conexión con tu cuenta; los cambios quedan en este navegador y se subirán al volver." }[cloud.status] || "Conectando con tu cuenta…";
     syncEl.innerHTML = `${msg}${cloud.status === "ok" ? ` · ${esc(userEmail)}` : ""} · <button class="link" data-sync="logout">Salir</button>`;
   } else if (cloud.step === "email") {
-    syncEl.innerHTML = `<form class="login" data-step="email"><label for="sy-email">Escribe tu email y te enviaremos un código para entrar.</label>
+    syncEl.innerHTML = `<form class="login" data-step="email"><label for="sy-email">Escribe tu email y te enviaremos un enlace para entrar.</label>
       <div class="row"><input id="sy-email" type="email" autocomplete="email" required placeholder="tu@email.com" value="${esc(cloud.email)}"><button class="btn">Enviar código</button></div>
       ${err}<button type="button" class="link" data-sync="cancel">Cancelar</button></form>`;
   } else if (cloud.step === "code") {
-    syncEl.innerHTML = `<form class="login" data-step="code"><label for="sy-code">Escribe el código que te hemos enviado a <b>${esc(cloud.email)}</b>.</label>
+    syncEl.innerHTML = `<form class="login" data-step="code"><label for="sy-code">Te hemos enviado un email a <b>${esc(cloud.email)}</b>. Pulsa el enlace que trae o, si trae un código, escríbelo aquí.</label>
       <div class="row"><input id="sy-code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6,10}" maxlength="10" required placeholder="123456"><button class="btn">Entrar</button></div>
       ${err}<button type="button" class="link" data-sync="back">Cambiar email</button></form>`;
   } else syncEl.innerHTML = `${local} <button class="link" data-sync="open">Sincronizar entre dispositivos</button>`;
@@ -411,21 +411,30 @@ syncEl.addEventListener("submit", async e => {
   form.querySelector(".btn").disabled = true; cloud.msg = "";
   if (form.dataset.step === "email") {
     cloud.email = input.value.trim();
-    const { error } = await sb.auth.signInWithOtp({ email: cloud.email });
+    const { error } = await sb.auth.signInWithOtp({ email: cloud.email, options: { emailRedirectTo: location.origin + location.pathname } });
     if (error) cloud.msg = authMsg(error); else cloud.step = "code";
   } else {
     const { error } = await sb.auth.verifyOtp({ email: cloud.email, token: input.value.trim(), type: "email" });
-    if (error) cloud.msg = authMsg(error); else { cloud.step = ""; toast("Has entrado en tu cuenta"); }
+    if (error) cloud.msg = authMsg(error); else cloud.step = "";
   }
   renderSync(); syncEl.querySelector("input")?.focus();
 });
 
 function initCloud() {
+  // a failed email link comes back as #error_code=…; supabase-js picks up a good one by itself
+  const back = new URLSearchParams(location.hash.slice(1));
+  if (back.get("error_code") || back.get("error")) {
+    cloud.step = "email"; cloud.msg = "El enlace no es válido o ha caducado. Pide otro."; toast(cloud.msg);
+    history.replaceState(history.state, "", location.pathname + location.search);
+  }
   sb = supabase.createClient(SB_URL, SB_KEY);
   sb.auth.onAuthStateChange((event, session) => {
     const id = session?.user?.id || null;
     userEmail = session?.user?.email || "";
-    if (id !== uid) { uid = id; dirty = false; cloud.status = ""; if (uid) setTimeout(pull); } // outside the callback, as supabase-js asks
+    if (id !== uid) {
+      if (event === "SIGNED_IN" && id) { cloud.step = ""; cloud.msg = ""; toast("Has entrado en tu cuenta"); }
+      uid = id; dirty = false; cloud.status = ""; if (uid) setTimeout(pull); // outside the callback, as supabase-js asks
+    }
     renderSync();
   });
 }
