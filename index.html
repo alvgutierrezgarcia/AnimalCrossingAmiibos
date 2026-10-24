@@ -185,6 +185,13 @@ main { padding-top: 14px; }
 
 .toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(18px + env(safe-area-inset-bottom, 0px)); background: var(--ink); color: var(--bg); padding: 9px 16px; border-radius: 99px; font-weight: 700; font-size: 0.88rem; z-index: 30; }
 .sync { font-size: 0.75rem; color: var(--muted); margin-top: 26px; text-align: center; }
+.sync .link { border: 0; background: none; padding: 6px 2px; font: inherit; font-weight: 700; color: var(--leaf); cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
+.login { display: grid; gap: 8px; max-width: 420px; margin: 0 auto; padding: 14px; text-align: left; font-size: 0.85rem; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); }
+.login .row { display: flex; gap: 8px; }
+.login input { flex: 1; min-width: 0; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface-2); color: var(--ink); font: inherit; font-size: 16px; }
+.login .btn { flex: none; padding: 10px 14px; background: var(--leaf); border-color: var(--leaf); color: var(--surface); }
+.login .err { color: var(--s4); font-weight: 700; }
+.login .link { justify-self: start; font-size: 0.8rem; }
 
 @media (max-width: 700px) {
   body { padding-bottom: calc(84px + env(safe-area-inset-bottom, 0px)); }
@@ -369,10 +376,49 @@ async function push() {
 function setCloud(status) { cloud.status = status; renderSync(); }
 
 function renderSync() {
-  if (!sb || !uid) { syncEl.textContent = "Tus favoritos y tu isla se guardan en este navegador."; return; }
-  const msg = { syncing: "Sincronizando con tu cuenta…", ok: "Sincronizado con tu cuenta", error: "Sin conexión con tu cuenta; los cambios quedan en este navegador y se subirán al volver." }[cloud.status] || "Conectando con tu cuenta…";
-  syncEl.innerHTML = `${msg}${cloud.status === "ok" ? ` · ${esc(userEmail)}` : ""}`;
+  const local = "Tus favoritos y tu isla se guardan en este navegador.";
+  if (!sb) { syncEl.textContent = local; return; }
+  const err = cloud.msg ? `<span class="err" role="alert">${esc(cloud.msg)}</span>` : "";
+  if (uid) {
+    const msg = { syncing: "Sincronizando con tu cuenta…", ok: "Sincronizado con tu cuenta", error: "Sin conexión con tu cuenta; los cambios quedan en este navegador y se subirán al volver." }[cloud.status] || "Conectando con tu cuenta…";
+    syncEl.innerHTML = `${msg}${cloud.status === "ok" ? ` · ${esc(userEmail)}` : ""} · <button class="link" data-sync="logout">Salir</button>`;
+  } else if (cloud.step === "email") {
+    syncEl.innerHTML = `<form class="login" data-step="email"><label for="sy-email">Escribe tu email y te enviaremos un código para entrar.</label>
+      <div class="row"><input id="sy-email" type="email" autocomplete="email" required placeholder="tu@email.com" value="${esc(cloud.email)}"><button class="btn">Enviar código</button></div>
+      ${err}<button type="button" class="link" data-sync="cancel">Cancelar</button></form>`;
+  } else if (cloud.step === "code") {
+    syncEl.innerHTML = `<form class="login" data-step="code"><label for="sy-code">Escribe el código que te hemos enviado a <b>${esc(cloud.email)}</b>.</label>
+      <div class="row"><input id="sy-code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6,10}" maxlength="10" required placeholder="123456"><button class="btn">Entrar</button></div>
+      ${err}<button type="button" class="link" data-sync="back">Cambiar email</button></form>`;
+  } else syncEl.innerHTML = `${local} <button class="link" data-sync="open">Sincronizar entre dispositivos</button>`;
 }
+const authMsg = e => /rate_limit|rate limit/i.test(e.code + e.message) || e.status === 429 ? "Demasiados intentos. Espera un poco y vuelve a probar."
+  : /expired|invalid/i.test(e.code + e.message) ? "El código no es válido o ha caducado."
+  : /signup|not allowed/i.test(e.code + e.message) ? "Ese email no tiene cuenta en este álbum."
+  : "No se pudo conectar. Revisa la conexión y vuelve a probar.";
+syncEl.addEventListener("click", async e => {
+  const a = e.target.closest("[data-sync]")?.dataset.sync;
+  if (!a) return;
+  cloud.msg = "";
+  if (a === "open" || a === "back") cloud.step = "email";
+  else if (a === "cancel") cloud.step = "";
+  else if (a === "logout") { await sb.auth.signOut({ scope: "local" }); toast("Has salido de tu cuenta; tus datos siguen en este navegador"); }
+  renderSync(); syncEl.querySelector("input")?.focus();
+});
+syncEl.addEventListener("submit", async e => {
+  e.preventDefault();
+  const form = e.target, input = form.querySelector("input");
+  form.querySelector(".btn").disabled = true; cloud.msg = "";
+  if (form.dataset.step === "email") {
+    cloud.email = input.value.trim();
+    const { error } = await sb.auth.signInWithOtp({ email: cloud.email });
+    if (error) cloud.msg = authMsg(error); else cloud.step = "code";
+  } else {
+    const { error } = await sb.auth.verifyOtp({ email: cloud.email, token: input.value.trim(), type: "email" });
+    if (error) cloud.msg = authMsg(error); else { cloud.step = ""; toast("Has entrado en tu cuenta"); }
+  }
+  renderSync(); syncEl.querySelector("input")?.focus();
+});
 
 function initCloud() {
   sb = supabase.createClient(SB_URL, SB_KEY);
