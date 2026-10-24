@@ -1,0 +1,590 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Álbum amiibo ACNH</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito+Sans:opsz,wght@6..12,400;6..12,600;6..12,700&family=DM+Mono:wght@500&display=swap">
+<style>
+/* Layout: a collector's binder. Sticky search bar, tabs (Catálogo · Favoritos · Mi isla),
+   cards grouped into species "pages" with a jump strip; island = 10 house plots. */
+:root {
+  --bg: #eef2e6;
+  --surface: #ffffff;
+  --surface-2: #f6f8f1;
+  --ink: #22301e;
+  --muted: #627058;
+  --line: #d6dfca;
+  --leaf: #2f7d4f;
+  --leaf-soft: #dcecd9;
+  --star: #e7a800;
+  --s1: #e07a2f;
+  --s2: #2f86c9;
+  --s3: #8a59c0;
+  --s4: #cf4a77;
+  --special: #b8860b;
+  --font-display: "Baloo 2", "Nunito Sans", ui-rounded, system-ui, sans-serif;
+  --font-body: "Nunito Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "DM Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --radius: 14px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #141a13; --surface: #1d251b; --surface-2: #232c21; --ink: #e6eddf; --muted: #9aa890;
+    --line: #34402f; --leaf: #6cc28c; --leaf-soft: #23392a; --star: #f5c53d;
+    --s1: #f0954f; --s2: #5aa7e3; --s3: #ad86de; --s4: #e8739a; --special: #e0b44a;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #141a13; --surface: #1d251b; --surface-2: #232c21; --ink: #e6eddf; --muted: #9aa890;
+  --line: #34402f; --leaf: #6cc28c; --leaf-soft: #23392a; --star: #f5c53d;
+  --s1: #f0954f; --s2: #5aa7e3; --s3: #ad86de; --s4: #e8739a; --special: #e0b44a;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.45;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0 48px;
+}
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--leaf); outline-offset: 2px; }
+.wrap { max-width: 1120px; margin: 0 auto; }
+
+header.top { padding-block: 20px 8px; display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+h1 { font-family: var(--font-display); font-weight: 800; font-size: clamp(1.7rem, 5vw, 2.4rem); line-height: 1; margin: 0; letter-spacing: -0.01em; text-wrap: balance; }
+h1 small { display: block; font-family: var(--font-body); font-weight: 600; font-size: 0.82rem; color: var(--muted); letter-spacing: 0.02em; margin-top: 6px; }
+.tally { display: flex; gap: 8px; flex-wrap: wrap; }
+.tally span { font-size: 0.8rem; font-weight: 700; padding: 4px 10px; border-radius: 99px; background: var(--surface); border: 1px solid var(--line); font-variant-numeric: tabular-nums; }
+
+.bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); padding-block: 10px; display: grid; gap: 10px; border-bottom: 1px solid var(--line); }
+.tabs { display: flex; gap: 4px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 4px; }
+.tabs button { flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 6px; border: 0; background: transparent; padding: 8px 6px; border-radius: 9px; font-weight: 700; font-size: 0.9rem; cursor: pointer; color: var(--muted); }
+.tabs button[aria-selected="true"] { background: var(--leaf); color: var(--surface); }
+.tabs button svg { width: 16px; height: 16px; flex: none; }
+.tabs .count { font-family: var(--font-mono); font-size: 0.75rem; opacity: 0.85; margin-left: 4px; }
+.controls { display: grid; gap: 8px; }
+.searchrow { display: flex; gap: 8px; }
+.ftoggle { display: none; flex: none; align-items: center; gap: 6px; border: 1px solid var(--line); background: var(--surface); border-radius: 12px; padding: 0 12px; font-weight: 700; font-size: 0.9rem; cursor: pointer; }
+.ftoggle svg { width: 18px; height: 18px; }
+.ftoggle[aria-expanded="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.badge { background: var(--leaf); color: var(--surface); font-size: 0.72rem; font-family: var(--font-mono); min-width: 18px; height: 18px; border-radius: 9px; display: inline-grid; place-items: center; padding: 0 5px; }
+.search { flex: 1; min-width: 0; position: relative; }
+.search input { width: 100%; padding: 10px 12px 10px 36px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); font: inherit; font-size: 16px; }
+.search svg { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); width: 17px; height: 17px; color: var(--muted); }
+select { padding: 6px 8px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); font: inherit; font-size: 0.9rem; max-width: 42%; }
+.filters { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.chip { border: 1px solid var(--line); background: var(--surface); padding: 5px 11px; border-radius: 99px; font-size: 0.82rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+.chip[aria-pressed="true"] { border-color: var(--ink); background: var(--ink); color: var(--bg); }
+.chip .dot { width: 9px; height: 9px; border-radius: 50%; }
+.sep { width: 1px; align-self: stretch; background: var(--line); margin: 2px 2px; }
+
+.spsel { width: 100%; max-width: none; padding: 10px 12px; font-size: 16px; font-weight: 700; border-radius: 12px; }
+.spsel.active { border-color: var(--ink); box-shadow: 0 0 0 1px var(--ink); }
+.jump { display: flex; gap: 6px; overflow-x: auto; padding-block: 2px 4px; scrollbar-width: thin; }
+.jump button { flex: none; border: 1px solid var(--line); background: var(--surface-2); border-radius: 10px; padding: 4px 9px; font-size: 0.8rem; font-weight: 700; cursor: pointer; white-space: nowrap; }
+.jump button span { font-family: var(--font-mono); font-weight: 500; color: var(--muted); margin-left: 3px; font-size: 0.72rem; }
+
+main { padding-top: 14px; }
+.result-note { font-size: 0.85rem; color: var(--muted); margin: 0 0 10px; }
+.group { margin-bottom: 26px; scroll-margin-top: 190px; }
+.group h2 { font-family: var(--font-display); font-weight: 700; font-size: 1.35rem; margin: 0 0 10px; display: flex; align-items: baseline; gap: 10px; }
+.group h2 .em { font-size: 1.4rem; }
+.group h2 .n { font-family: var(--font-mono); font-size: 0.8rem; font-weight: 500; color: var(--muted); }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 10px; }
+
+.card { position: relative; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 0; cursor: pointer; text-align: left; display: flex; flex-direction: column; overflow: hidden; transition: transform .12s ease, box-shadow .12s ease; }
+@media (hover: hover) { .card:hover { transform: translateY(-2px); box-shadow: 0 6px 16px -10px rgba(0,0,0,.35); } }
+.card .fav::after, .card .pic::after { content: ""; position: absolute; inset: -7px; }
+.card .band { height: 6px; background: var(--sc); }
+.card .face { display: grid; place-items: center; font-size: 2.3rem; line-height: 1; height: 62px; background: var(--surface-2); margin: 8px 8px 0; border-radius: 10px; }
+.card .meta { padding: 8px 10px 10px; display: grid; gap: 1px; min-width: 0; }
+.card .num { font-family: var(--font-mono); font-size: 0.72rem; color: var(--sc); font-weight: 500; }
+.card .nm { font-weight: 700; font-size: 0.95rem; line-height: 1.2; overflow-wrap: anywhere; }
+.card .en { font-size: 0.74rem; color: var(--muted); overflow-wrap: anywhere; }
+.card .tag { margin-top: 4px; font-size: 0.7rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+.card .tag.sp { color: var(--special); }
+.card .fav { position: absolute; top: 12px; right: 8px; width: 30px; height: 30px; border-radius: 50%; border: 0; background: var(--surface); display: grid; place-items: center; cursor: pointer; color: var(--line); box-shadow: 0 0 0 1px var(--line); }
+.card .fav svg { width: 17px; height: 17px; }
+.card .fav[aria-pressed="true"] { color: var(--star); box-shadow: 0 0 0 1px var(--star); }
+.card .home { position: absolute; top: 12px; left: 8px; width: 24px; height: 24px; border-radius: 50%; background: var(--leaf); color: var(--surface); display: grid; place-items: center; }
+.card .home svg { width: 13px; height: 13px; }
+
+.empty { padding: 32px 16px; text-align: center; color: var(--muted); border: 1px dashed var(--line); border-radius: var(--radius); }
+.empty strong { display: block; font-family: var(--font-display); font-size: 1.2rem; color: var(--ink); margin-bottom: 4px; }
+
+/* Island */
+.island-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+.island-head h2 { font-family: var(--font-display); font-size: 1.5rem; margin: 0; }
+.island-head p { margin: 0; color: var(--muted); font-size: 0.88rem; }
+.plots { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+.plot { border-radius: var(--radius); padding: 12px; min-height: 108px; display: flex; gap: 10px; align-items: center; background: var(--surface); border: 1px solid var(--line); }
+.plot.free { border-style: dashed; background: transparent; color: var(--muted); justify-content: center; font-size: 0.85rem; font-weight: 600; flex-direction: column; text-align: center; gap: 2px; }
+.plot.free b { font-family: var(--font-mono); font-weight: 500; font-size: 0.75rem; }
+.plot .em { font-size: 2.2rem; flex: none; }
+.plot .info { min-width: 0; flex: 1; display: grid; gap: 2px; }
+.plot .info .nm { font-weight: 700; cursor: pointer; background: none; border: 0; padding: 0; text-align: left; font-size: 1rem; }
+.plot .info small { color: var(--muted); font-size: 0.78rem; }
+.plot .rm { border: 1px solid var(--line); background: var(--surface-2); border-radius: 8px; font-size: 0.75rem; font-weight: 700; padding: 3px 8px; cursor: pointer; justify-self: start; margin-top: 4px; }
+.island-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; margin-top: 18px; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; }
+.panel h3 { margin: 0 0 10px; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+.mix { display: grid; gap: 6px; }
+.mix .row { display: grid; grid-template-columns: 88px 1fr 22px; gap: 8px; align-items: center; font-size: 0.85rem; }
+.mix .track { height: 8px; border-radius: 4px; background: var(--surface-2); overflow: hidden; }
+.mix .track i { display: block; height: 100%; background: var(--leaf); border-radius: 4px; }
+.mix .row b { font-family: var(--font-mono); font-weight: 500; text-align: right; font-variant-numeric: tabular-nums; }
+.mix .row.zero { color: var(--muted); }
+.bdays { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; font-size: 0.88rem; }
+.bdays li { display: flex; justify-content: space-between; gap: 8px; }
+.bdays li span:last-child { color: var(--muted); font-variant-numeric: tabular-nums; }
+
+/* Sheet */
+.scrim { position: fixed; inset: 0; background: rgba(10, 14, 9, 0.45); z-index: 20; }
+.sheet { position: fixed; z-index: 21; left: 50%; bottom: 0; transform: translateX(-50%); width: min(520px, 100%); background: var(--surface); border-radius: 20px 20px 0 0; padding: 18px max(20px, env(safe-area-inset-right, 0px)) calc(20px + env(safe-area-inset-bottom, 0px)) max(20px, env(safe-area-inset-left, 0px)); box-shadow: 0 -10px 30px -12px rgba(0,0,0,.4); max-height: 88vh; overflow-y: auto; }
+@media (min-width: 700px) { .sheet { bottom: auto; top: 50%; transform: translate(-50%, -50%); border-radius: 20px; } }
+.sheet .hd { display: flex; gap: 14px; align-items: center; }
+.sheet .bigface { width: 82px; height: 82px; border-radius: 16px; display: grid; place-items: center; font-size: 3.1rem; background: var(--surface-2); border-top: 6px solid var(--sc); flex: none; }
+.sheet h3 { font-family: var(--font-display); font-size: 1.7rem; line-height: 1.05; margin: 0; }
+.sheet .sub { color: var(--muted); font-size: 0.88rem; }
+.sheet dl { display: grid; grid-template-columns: auto 1fr; gap: 6px 16px; margin: 16px 0; font-size: 0.92rem; }
+.sheet dt { color: var(--muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; padding-top: 2px; }
+.sheet dd { margin: 0; font-weight: 600; }
+.sheet .acts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.btn { border: 1px solid var(--line); background: var(--surface-2); border-radius: 12px; padding: 11px 12px; font-weight: 700; cursor: pointer; display: inline-flex; gap: 8px; align-items: center; justify-content: center; }
+.btn svg { width: 18px; height: 18px; }
+.btn.on-fav { background: var(--star); border-color: var(--star); color: #2b2100; }
+.btn.on-home { background: var(--leaf); border-color: var(--leaf); color: var(--surface); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.sheet .note { font-size: 0.8rem; color: var(--muted); margin: 10px 0 0; }
+.sheet .close { position: absolute; top: 8px; right: 8px; width: 44px; height: 44px; border: 0; background: transparent; font-size: 1.5rem; cursor: pointer; color: var(--muted); width: 36px; height: 36px; }
+
+.photo { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; margin-top: 14px; padding: 13px 14px; border-radius: 12px; background: var(--ink); color: var(--bg); font-weight: 800; text-decoration: none; font-size: 1rem; }
+.photo svg { width: 20px; height: 20px; }
+.photo-alt { display: block; text-align: center; margin-top: 8px; font-size: 0.85rem; font-weight: 700; color: var(--leaf); }
+.card .pic { position: absolute; top: 50px; right: 12px; width: 26px; height: 26px; border-radius: 8px; background: var(--ink); color: var(--bg); display: grid; place-items: center; }
+.card .pic svg { width: 14px; height: 14px; }
+.plot .pic { font-size: 0.75rem; font-weight: 700; color: var(--leaf); }
+.sw { display: inline-flex; flex-wrap: wrap; gap: 6px 10px; }
+.sw span { display: inline-flex; align-items: center; gap: 5px; }
+.sw i { width: 14px; height: 14px; border-radius: 50%; box-shadow: inset 0 0 0 1px rgba(0,0,0,.25); display: inline-block; }
+.face img, .thumb img, .bigcard img { width: 100%; height: 100%; object-fit: contain; display: block; }
+.fallback { display: grid; place-items: center; width: 100%; height: 100%; font-size: 2.4rem; }
+.grid .card .face { height: auto; aspect-ratio: 276 / 388; display: block; overflow: hidden; border-radius: 8px; }
+.plot .thumb { width: 54px; flex: none; aspect-ratio: 276 / 388; border-radius: 6px; overflow: hidden; background: var(--surface-2); }
+.sheet .hd { align-items: flex-start; }
+.bigcard { width: 140px; max-width: 42%; flex: none; aspect-ratio: 276 / 388; border-radius: 10px; overflow: hidden; background: var(--surface-2); border-bottom: 5px solid var(--sc); }
+.bigcard .fallback { font-size: 3.4rem; }
+.sheet .hd > div:last-child { padding-top: 6px; min-width: 0; }
+
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(18px + env(safe-area-inset-bottom, 0px)); background: var(--ink); color: var(--bg); padding: 9px 16px; border-radius: 99px; font-weight: 700; font-size: 0.88rem; z-index: 30; }
+.sync { font-size: 0.75rem; color: var(--muted); margin-top: 26px; text-align: center; }
+
+@media (max-width: 700px) {
+  body { padding-bottom: calc(84px + env(safe-area-inset-bottom, 0px)); }
+  header.top { padding-block: 14px 4px; }
+  h1 { font-size: 1.55rem; }
+  h1 small { font-size: 0.76rem; margin-top: 4px; }
+  .tally { display: none; }
+  .bar { padding-block: 8px; gap: 8px; }
+  .tabs { position: fixed; left: 0; right: 0; bottom: 0; z-index: 15; border-radius: 0; border-width: 1px 0 0; gap: 0;
+    padding: 6px max(8px, env(safe-area-inset-right, 0px)) calc(6px + env(safe-area-inset-bottom, 0px)) max(8px, env(safe-area-inset-left, 0px));
+    box-shadow: 0 -6px 18px -14px rgba(0,0,0,.45); }
+  .tabs button { flex-direction: column; gap: 2px; padding: 6px 4px; font-size: 0.74rem; min-height: 52px; border-radius: 12px; }
+  .tabs button svg { width: 22px; height: 22px; }
+  .tabs .lbl { display: inline-flex; align-items: center; }
+  .tabs .count { font-size: 0.68rem; }
+  .ftoggle { display: inline-flex; }
+  .filters:not(.open) { display: none; }
+  .filters { padding: 10px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; gap: 8px; }
+  .filters .sep { display: none; }
+  .filters .chip { padding: 8px 12px; font-size: 0.85rem; }
+  .filters select { flex: 1 1 140px; max-width: none; padding: 9px 8px; }
+  .jump { margin-inline: calc(-1 * max(16px, env(safe-area-inset-left, 0px))) calc(-1 * max(16px, env(safe-area-inset-right, 0px)));
+    padding-inline: max(16px, env(safe-area-inset-left, 0px)) max(16px, env(safe-area-inset-right, 0px)); scrollbar-width: none; scroll-padding-inline: 16px; }
+  .jump::-webkit-scrollbar { display: none; }
+  .jump button { padding: 7px 11px; font-size: 0.84rem; }
+  main { padding-top: 10px; }
+  .group h2 { font-size: 1.2rem; }
+  .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)); max-width: calc(100% - 32px); text-align: center; }
+  .sheet { max-height: 85vh; }
+  .sheet h3 { font-size: 1.45rem; }
+  .sheet .bigface { width: 70px; height: 70px; font-size: 2.6rem; }
+  .sheet .acts .btn { min-height: 48px; }
+  .plots { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .plot { min-height: 96px; padding: 10px; gap: 8px; align-items: flex-start; }
+  .plot .em { font-size: 1.8rem; }
+  .plot .rm { padding: 6px 10px; }
+  .island-head h2 { font-size: 1.3rem; }
+}
+@media (max-width: 480px) {
+  .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .card .face { height: 52px; font-size: 2rem; margin: 6px 6px 0; }
+  .card .meta { padding: 6px 8px 8px; }
+  .card .nm { font-size: 0.86rem; }
+  .card .fav { width: 26px; height: 26px; top: 9px; right: 5px; }
+  .card .home { top: 9px; left: 5px; width: 20px; height: 20px; }
+  .card .pic { top: 40px; right: 9px; width: 24px; height: 24px; }
+}
+@media (prefers-reduced-motion: reduce) { .card { transition: none; } .card:hover { transform: none; } }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="top">
+    <h1>Álbum amiibo<small>Animal Crossing · tarjetas de las series 1 a 4</small></h1>
+    <div class="tally" id="tally"></div>
+  </header>
+
+  <div class="bar">
+    <div class="tabs" role="tablist">
+      <button role="tab" id="tab-all" data-tab="all" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></svg><span class="lbl">Catálogo</span></button>
+      <button role="tab" id="tab-fav" data-tab="fav" aria-selected="false"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.8l2.8 5.9 6.4.8-4.7 4.4 1.2 6.4L12 17.2l-5.7 3.1 1.2-6.4L2.8 9.5l6.4-.8z"/></svg><span class="lbl">Favoritos<span class="count" id="c-fav">0</span></span></button>
+      <button role="tab" id="tab-isl" data-tab="isl" aria-selected="false"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3 2.5 11h2.7v9h5.3v-5.5h3v5.5h5.3v-9h2.7z"/></svg><span class="lbl">Mi isla<span class="count" id="c-isl">0/10</span></span></button>
+    </div>
+    <div id="catalog-controls" class="controls">
+      <div class="searchrow">
+        <label class="search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          <input id="q" type="search" placeholder="Buscar nombre, especie…" autocomplete="off" aria-label="Buscar">
+        </label>
+        <button class="ftoggle" id="ftoggle" aria-expanded="false" aria-controls="filters"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg>Filtros<span class="badge" id="fcount" hidden></span></button>
+      </div>
+      <div class="filters" id="filters"></div>
+      <select id="species" class="spsel" aria-label="Especie"></select>
+    </div>
+  </div>
+
+  <main id="main"></main>
+  <p class="sync" id="sync"></p>
+</div>
+
+<div class="scrim" id="scrim" hidden></div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sh-name" hidden></div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+const CARDS = [{"n":1,"s":1,"en":"Isabelle","es":"Canela","sp":"Perro","g":"F","b":"12/20","v":0,"i":"01810001-00440502"},{"n":2,"s":1,"en":"Tom Nook","es":"Tom Nook","sp":"Mapache","g":"M","b":"5/30","v":0,"i":"01830001-00450502"},{"n":3,"s":1,"en":"DJ KK","es":"DJ KeKe","sp":"Perro","g":"M","b":"8/23","v":0,"i":"01820101-00460502"},{"n":4,"s":1,"en":"Sable","es":"Mili","sp":"Erizo","g":"F","b":"11/22","v":0,"i":"01870001-00470502"},{"n":5,"s":1,"en":"Kapp'n","es":"Capitán","sp":"Kappa","g":"M","b":"7/12","v":0,"i":"01960001-00480502"},{"n":6,"s":1,"en":"Resetti","es":"Rese T.","sp":"Topo","g":"M","b":"4/6","v":0,"i":"018e0001-00490502"},{"n":7,"s":1,"en":"Joan","es":"Juana","sp":"Jabalí","g":"F","b":"1/8","v":0,"i":"01a30001-004a0502"},{"n":8,"s":1,"en":"Timmy","es":"Tendo","sp":"Mapache","g":"M","b":"6/7","v":0,"i":"01850001-004b0502"},{"n":9,"s":1,"en":"Digby","es":"Candrés","sp":"Perro","g":"M","b":"12/20","v":0,"i":"018c0001-004c0502"},{"n":10,"s":1,"en":"Pascal","es":"Pascal","sp":"Nutria","g":"M","b":"7/19","v":0,"i":"01a40001-004d0502"},{"n":11,"s":1,"en":"Harriet","es":"Marilín","sp":"Perro","g":"F","b":"1/31","v":0,"i":"01910001-004e0502"},{"n":12,"s":1,"en":"Redd","es":"Ladino","sp":"Zorro","g":"M","b":"10/18","v":0,"i":"01a80001-004f0502"},{"n":13,"s":1,"en":"Saharah","es":"Alcatifa","sp":"Camello","g":"F","b":"11/10","v":0,"i":"01a60001-00500502"},{"n":14,"s":1,"en":"Luna","es":"Alakama","sp":"Tapir","g":"F","b":"2/29","v":0,"i":"01b50001-00510502"},{"n":15,"s":1,"en":"Tortimer","es":"Tórtimer","sp":"Tortuga","g":"M","b":"12/31","v":0,"i":"01b00001-00520502"},{"n":16,"s":1,"en":"Lyle","es":"Sisebuto","sp":"Nutria","g":"M","b":"6/6","v":0,"i":"01aa0001-00530502"},{"n":17,"s":1,"en":"Lottie","es":"Nuria","sp":"Nutria","g":"F","b":"9/12","v":0,"i":"01c10001-00540502"},{"n":18,"s":1,"en":"Bob","es":"Arándano","sp":"Gato","p":"Perezoso","g":"M","b":"1/1","c":"zarpas","v":1,"h":"Jugar","st":["Sencillo","Cuqui"],"co":["Colorful","Red"],"i":"025d0001-00550502"},{"n":19,"s":1,"en":"Fauna","es":"Fauna","sp":"Ciervo","p":"Normal","g":"F","b":"3/26","c":"puchu","v":1,"h":"Naturaleza","st":["Sencillo","Cuqui"],"co":["Beige","White"],"i":"02d60001-00560502"},{"n":20,"s":1,"en":"Curt","es":"Gorbaché","sp":"Oso","p":"Gruñón","g":"M","b":"7/1","c":"oye","v":1,"h":"Naturaleza","st":["Moderno","Moderno"],"co":["Blue","White"],"i":"02160001-00570502"},{"n":21,"s":1,"en":"Portia","es":"Amanda","sp":"Perro","p":"Presumida","g":"F","b":"10/25","c":"ruf-ruf","v":1,"h":"Moda","st":["Elegante","Glamuroso"],"co":["Purple","Black"],"i":"02ef0001-00580502"},{"n":22,"s":1,"en":"Leonardo","es":"Leocadio","sp":"Tigre","p":"Atlético","g":"M","b":"5/15","c":"macoque","v":1,"h":"Deporte","st":["Deportivo","Glamuroso"],"co":["Red","Blue"],"i":"04fe0001-00590502"},{"n":23,"s":1,"en":"Cheri","es":"Cerecita","sp":"Osezno","p":"Alegre","g":"F","b":"3/17","c":"tralará","v":1,"h":"Moda","st":["Sencillo","Cuqui"],"co":["Yellow","Aqua"],"i":"02870001-005a0502"},{"n":24,"s":1,"en":"Kyle","es":"Ataúlfo","sp":"Lobo","p":"Esnob","g":"M","b":"12/6","c":"aujujú","v":1,"h":"Música","st":["Glamuroso","Moderno"],"co":["Black","White"],"i":"05150001-005b0502"},{"n":25,"s":1,"en":"Al","es":"Álex","sp":"Gorila","p":"Perezoso","g":"M","b":"10/18","c":"chocolate","v":1,"h":"Deporte","st":["Deportivo","Deportivo"],"co":["Red","White"],"i":"03710001-005c0502"},{"n":26,"s":1,"en":"Renée","es":"Rina","sp":"Rinoceronte","p":"Dulce","g":"F","b":"5/28","c":"purrum","v":1,"h":"Música","st":["Moderno","Deportivo"],"co":["Purple","Yellow"],"i":"04ba0001-005d0502"},{"n":27,"s":1,"en":"Lopez","es":"Agreste","sp":"Ciervo","p":"Esnob","g":"M","b":"8/20","c":"trisca","v":1,"h":"Leer y aprender","st":["Glamuroso","Glamuroso"],"co":["Gray","Gray"],"i":"02db0001-005e0502"},{"n":28,"s":1,"en":"Jambette","es":"Anquita","sp":"Rana","p":"Normal","g":"F","b":"10/27","c":"croac","v":1,"h":"Moda","st":["Moderno","Moderno"],"co":["Brown","Brown"],"i":"03450001-005f0502"},{"n":29,"s":1,"en":"Rasher","es":"Curtis","sp":"Cerdo","p":"Gruñón","g":"M","b":"4/7","c":"porcino","v":1,"h":"Música","st":["Moderno","Sencillo"],"co":["Blue","Black"],"i":"047a0001-00600502"},{"n":30,"s":1,"en":"Tiffany","es":"Tiffany","sp":"Conejo","p":"Presumida","g":"F","b":"1/9","c":"pompón","v":1,"h":"Moda","st":["Glamuroso","Moderno"],"co":["Black","Red"],"i":"049b0001-00610502"},{"n":31,"s":1,"en":"Sheldon","es":"Matracas","sp":"Ardilla","p":"Atlético","g":"M","b":"2/26","c":"zasca","v":1,"h":"Jugar","st":["Deportivo","Moderno"],"co":["Green","Yellow"],"i":"04ed0001-00620502"},{"n":32,"s":1,"en":"Bluebear","es":"Celeste","sp":"Osezno","p":"Alegre","g":"F","b":"6/24","c":"cielito","v":1,"h":"Moda","st":["Cuqui","Sencillo"],"co":["White","Blue"],"i":"027d0001-00630502"},{"n":33,"s":1,"en":"Bill","es":"Paquito","sp":"Pato","p":"Atlético","g":"M","b":"2/1","c":"cuaco","v":1,"h":"Jugar","st":["Deportivo","Deportivo"],"co":["Blue","Purple"],"i":"03070001-00640502"},{"n":34,"s":1,"en":"Kiki","es":"Ágata","sp":"Gato","p":"Normal","g":"F","b":"10/8","c":"galletita","v":1,"h":"Leer y aprender","st":["Sencillo","Sencillo"],"co":["Brown","Beige"],"i":"02610001-00650502"},{"n":35,"s":1,"en":"Deli","es":"Cana","sp":"Mono","p":"Perezoso","g":"M","b":"5/24","c":"millón","v":1,"h":"Naturaleza","st":["Glamuroso","Elegante"],"co":["Purple","Brown"],"i":"04010001-00660502"},{"n":36,"s":1,"en":"Alli","es":"Codrila","sp":"Cocodrilo","p":"Presumida","g":"F","b":"11/8","c":"lagartija","v":1,"h":"Moda","st":["Glamuroso","Elegante"],"co":["Yellow","Brown"],"i":"02c40001-00670502"},{"n":37,"s":1,"en":"Kabuki","es":"Kabuki","sp":"Gato","p":"Gruñón","g":"M","b":"11/29","c":"imikimono","v":1,"h":"Música","st":["Sencillo","Sencillo"],"co":["Purple","Red"],"i":"02660001-00680502"},{"n":38,"s":1,"en":"Patty","es":"Vacarena","sp":"Vaca","p":"Alegre","g":"F","b":"5/10","c":"muuuu","v":1,"h":"Moda","st":["Sencillo","Cuqui"],"co":["Orange","Red"],"i":"02b10001-00690502"},{"n":39,"s":1,"en":"Jitters","es":"Camelio","sp":"Pájaro","p":"Atlético","g":"M","b":"2/2","c":"pío-pío","v":1,"h":"Deporte","st":["Deportivo","Deportivo"],"co":["Yellow","Orange"],"i":"02310001-006a0502"},{"n":40,"s":1,"en":"Gigi","es":"Cleo","sp":"Rana","p":"Presumida","g":"F","b":"8/11","c":"trebolito","v":1,"h":"Moda","st":["Glamuroso","Elegante"],"co":["Black","White"],"i":"03480001-006b0502"},{"n":41,"s":1,"en":"Quillson","es":"Cuálter","sp":"Pato","p":"Esnob","g":"M","b":"12/22","c":"verdoncho","v":1,"h":"Música","st":["Elegante","Moderno"],"co":["Beige","Orange"],"i":"03180001-006c0502"},{"n":42,"s":1,"en":"Marcie","es":"Brisa","sp":"Canguro","p":"Normal","g":"F","b":"5/31","c":"nainoná","v":1,"h":"Naturaleza","st":["Cuqui","Elegante"],"co":["Pink","Beige"],"i":"03db0001-006d0502"},{"n":43,"s":1,"en":"Puck","es":"Fredo","sp":"Pingüino","p":"Perezoso","g":"M","b":"2/21","c":"sardinilla","v":1,"h":"Deporte","st":["Deportivo","Sencillo"],"co":["Blue","Red"],"i":"04650001-006e0502"},{"n":44,"s":1,"en":"Shari","es":"Montse","sp":"Mono","p":"Dulce","g":"F","b":"4/10","c":"tunante","v":1,"h":"Música","st":["Cuqui","Deportivo"],"co":["Aqua","Yellow"],"i":"04000001-006f0502"},{"n":45,"s":1,"en":"Octavian","es":"Octavio","sp":"Pulpo","p":"Gruñón","g":"M","b":"9/20","c":"chupatinta","v":1,"h":"Jugar","st":["Moderno","Sencillo"],"co":["Black","White"],"i":"04290001-00700502"},{"n":46,"s":1,"en":"Winnie","es":"Soonia","sp":"Caballo","p":"Alegre","g":"F","b":"1/31","c":"okeimakei","v":1,"h":"Moda","st":["Moderno","Sencillo"],"co":["White","Gray"],"i":"03a90001-00710502"},{"n":47,"s":1,"en":"Knox","es":"Tono","sp":"Gallina","p":"Gruñón","g":"M","b":"11/23","c":"mazorca","v":1,"h":"Leer y aprender","st":["Elegante","Glamuroso"],"co":["Brown","Red"],"i":"02a40001-00720502"},{"n":48,"s":1,"en":"Sterling","es":"Arni","sp":"Águila","p":"Atlético","g":"M","b":"12/11","c":"mancuernas","v":1,"h":"Deporte","st":["Sencillo","Elegante"],"co":["Blue","Red"],"i":"04520001-00730502"},{"n":49,"s":1,"en":"Bonbon","es":"Chocolat","sp":"Conejo","p":"Alegre","g":"F","b":"3/3","c":"oh lalá","v":1,"h":"Jugar","st":["Cuqui","Elegante"],"co":["Aqua","Yellow"],"i":"04a50001-00740502"},{"n":50,"s":1,"en":"Punchy","es":"Félix","sp":"Gato","p":"Perezoso","g":"M","b":"4/11","c":"arenque","v":1,"h":"Jugar","st":["Sencillo","Sencillo"],"co":["Blue","Aqua"],"i":"02630001-00750502"},{"n":51,"s":1,"en":"Opal","es":"Ópalo","sp":"Elefante","p":"Presumida","g":"F","b":"1/20","c":"flip-flop","v":1,"h":"Moda","st":["Elegante","Moderno"],"co":["Black","Orange"],"i":"03230001-00760502"},{"n":52,"s":1,"en":"Poppy","es":"Encina","sp":"Ardilla","p":"Normal","g":"F","b":"8/5","c":"albricias","v":1,"h":"Leer y aprender","st":["Cuqui","Elegante"],"co":["Green","Yellow"],"i":"04ec0001-00770502"},{"n":53,"s":1,"en":"Limberg","es":"Camember","sp":"Ratón","p":"Gruñón","g":"M","b":"10/17","c":"caramba","v":1,"h":"Leer y aprender","st":["Sencillo","Moderno"],"co":["Green","Blue"],"i":"040d0001-00780502"},{"n":54,"s":1,"en":"Deena","es":"Martita","sp":"Pato","p":"Normal","g":"F","b":"6/27","c":"miguita","v":1,"h":"Leer y aprender","st":["Sencillo","Cuqui"],"co":["Colorful","Blue"],"i":"030b0001-00790502"},{"n":55,"s":1,"en":"Snake","es":"Rayo","sp":"Conejo","p":"Atlético","g":"M","b":"11/3","c":"boin-boing","v":1,"h":"Deporte","st":["Deportivo","Sencillo"],"co":["Black","Blue"],"i":"04970001-007a0502"},{"n":56,"s":1,"en":"Bangle","es":"Felina","sp":"Tigre","p":"Alegre","g":"F","b":"8/27","c":"mi vida","v":1,"h":"Moda","st":["Glamuroso","Cuqui"],"co":["Yellow","Green"],"i":"04fd0001-007b0502"},{"n":57,"s":1,"en":"Phil","es":"Amalio","sp":"Avestruz","p":"Esnob","g":"M","b":"11/27","c":"jurk","v":1,"h":"Música","st":["Elegante","Moderno"],"co":["Green","Red"],"i":"043d0001-007c0502"},{"n":58,"s":1,"en":"Monique","es":"Monique","sp":"Gato","p":"Presumida","g":"F","b":"9/30","c":"ronrón","v":1,"h":"Moda","st":["Glamuroso","Elegante"],"co":["Purple","Pink"],"i":"02680001-007d0502"},{"n":59,"s":1,"en":"Nate","es":"Nachete","sp":"Oso","p":"Perezoso","g":"M","b":"8/16","c":"uuaaaah","v":1,"h":"Jugar","st":["Sencillo","Sencillo"],"co":["White","Green"],"i":"02190001-007e0502"},{"n":60,"s":1,"en":"Samson","es":"Sansón","sp":"Ratón","p":"Atlético","g":"M","b":"7/5","c":"flojeras","v":1,"h":"Deporte","st":["Sencillo","Deportivo"],"co":["Red","Yellow"],"i":"04100001-007f0502"},{"n":61,"s":1,"en":"Tutu","es":"Tutú","sp":"Oso","p":"Alegre","g":"F","b":"9/15","c":"fisflash","v":1,"h":"Moda","st":["Cuqui","Sencillo"],"co":["Pink","Red"],"i":"021b0001-00800502"},{"n":62,"s":1,"en":"T-Bone","es":"Bovi","sp":"Toro","p":"Gruñón","g":"M","b":"5/20","c":"muooola","v":1,"h":"Leer y aprender","st":["Moderno","Sencillo"],"co":["Blue","Black"],"i":"024f0001-00810502"},{"n":63,"s":1,"en":"Mint","es":"Menta","sp":"Ardilla","p":"Presumida","g":"F","b":"5/2","c":"bichito","v":1,"h":"Moda","st":["Glamuroso","Cuqui"],"co":["Pink","Purple"],"i":"04e60001-00820502"},{"n":64,"s":1,"en":"Pudge","es":"Bollito","sp":"Osezno","p":"Perezoso","g":"M","b":"6/11","c":"rebollos","v":1,"h":"Jugar","st":["Sencillo","Sencillo"],"co":["Green","Blue"],"i":"02800001-00830502"},{"n":65,"s":1,"en":"Midge","es":"Paloma","sp":"Pájaro","p":"Normal","g":"F","b":"3/12","c":"arrurrú","v":1,"h":"Leer y aprender","st":["Cuqui","Sencillo"],"co":["Pink","Pink"],"i":"02350001-00840502"},{"n":66,"s":1,"en":"Gruff","es":"Sátiro","sp":"Cabra","p":"Gruñón","g":"M","b":"8/29","c":"zampoña","v":1,"h":"Música","st":["Moderno","Glamuroso"],"co":["Purple","Black"],"i":"035a0001-00850502"},{"n":67,"s":1,"en":"Flurry","es":"Lluvia","sp":"Hámster","p":"Normal","g":"F","b":"1/30","c":"nomnom","v":1,"h":"Naturaleza","st":["Elegante","Cuqui"],"co":["Red","Pink"],"i":"03840001-00860502"},{"n":68,"s":1,"en":"Clyde","es":"Moe","sp":"Caballo","p":"Perezoso","g":"M","b":"5/1","c":"troteras","v":1,"h":"Jugar","st":["Sencillo","Cuqui"],"co":["Green","White"],"i":"03ae0001-00870502"},{"n":69,"s":1,"en":"Bella","es":"Prity","sp":"Ratón","p":"Alegre","g":"F","b":"12/28","c":"petisú","v":1,"h":"Música","st":["Moderno","Deportivo"],"co":["Black","Purple"],"i":"040e0001-00880502"},{"n":70,"s":1,"en":"Biff","es":"Pipo","sp":"Hipopótamo","p":"Atlético","g":"M","b":"3/29","c":"hipo-pipo","v":1,"h":"Deporte","st":["Glamuroso","Deportivo"],"co":["Black","Blue"],"i":"03940001-00890502"},{"n":71,"s":1,"en":"Yuka","es":"Yuka","sp":"Koala","p":"Presumida","g":"F","b":"7/20","c":"pues","v":1,"h":"Moda","st":["Moderno","Elegante"],"co":["Orange","Yellow"],"i":"03bc0001-008a0502"},{"n":72,"s":1,"en":"Lionel","es":"Lionel","sp":"León","p":"Esnob","g":"M","b":"7/29","c":"picoplás","v":1,"h":"Música","st":["Glamuroso","Deportivo"],"co":["Green","Gray"],"i":"03ee0001-008b0502"},{"n":73,"s":1,"en":"Flo","es":"Nieves","sp":"Pingüino","p":"Dulce","g":"F","b":"9/2","c":"fresqui","v":1,"h":"Música","st":["Moderno","Glamuroso"],"co":["Red","Purple"],"i":"046c0001-008c0502"},{"n":74,"s":1,"en":"Cobb","es":"Franfuá","sp":"Cerdo","p":"Atlético","g":"M","b":"10/7","c":"saperlipop","v":1,"h":"Leer y aprender","st":["Sencillo","Deportivo"],"co":["White","Blue"],"i":"04800001-008d0502"},{"n":75,"s":1,"en":"Amelia","es":"Amelia","sp":"Águila","p":"Presumida","g":"F","b":"11/19","c":"chinchilla","v":1,"h":"Música","st":["Moderno","Elegante"],"co":["Black","White"],"i":"044c0001-008e0502"},{"n":76,"s":1,"en":"Jeremiah","es":"Jeremías","sp":"Rana","p":"Perezoso","g":"M","b":"7/8","c":"croc-croc","v":1,"h":"Jugar","st":["Sencillo","Sencillo"],"co":["Orange","Yellow"],"i":"033f0001-008f0502"},{"n":77,"s":1,"en":"Cherry","es":"Luna","sp":"Perro","p":"Dulce","g":"F","b":"5/11","c":"guauchi","v":1,"h":"Música","st":["Moderno","Elegante"],"co":["Black","Purple"],"i":"02fb0001-00900502"},{"n":78,"s":1,"en":"Roscoe","es":"Jereza","sp":"Caballo","p":"Gruñón","g":"M","b":"6/16","c":"bípedo","v":1,"h":"Música","st":["Moderno","Glamuroso"],"co":["Black","Gray"],"i":"03a80001-00910502"},{"n":79,"s":1,"en":"Truffles","es":"Trufas","sp":"Cerdo","p":"Alegre","g":"F","b":"7/28","c":"oink-oink","v":1,"h":"Moda","st":["Cuqui","Glamuroso"],"co":["Green","Red"],"i":"04790001-00920502"},{"n":80,"s":1,"en":"Eugene","es":"Eucalín","sp":"Koala","p":"Esnob","g":"M","b":"10/26","c":"ouyeah","v":1,"h":"Música","st":["Moderno","Glamuroso"],"co":["Black","Gray"],"i":"03c60001-00930502"},{"n":81,"s":1,"en":"Eunice","es":"Lanolina","sp":"Oveja","p":"Normal","g":"F","b":"4/3","c":"veeenga","v":1,"h":"Moda","st":["Sencillo","Elegante"],"co":["Beige","Orange"],"i":"04c70001-00940502"},{"n":82,"s":1,"en":"Goose","es":"Gus","sp":"Gallina","p":"Atlético","g":"M","b":"10/4","c":"caracol","v":1,"h":"Deporte","st":["Sencillo","Deportivo"],"co":["Blue","White"],"i":"02990001-00950502"},{"n":83,"s":1,"en":"Annalisa","es":"Alba","sp":"Oso hormiguero","p":"Normal","g":"F","b":"2/6","c":"nubecillas","v":1,"h":"Naturaleza","st":["Elegante","Glamuroso"],"co":["Red","Pink"],"i":"02080001-00960502"},{"n":84,"s":1,"en":"Benjamin","es":"Bernardo","sp":"Perro","p":"Perezoso","g":"M","b":"8/3","c":"tirirí","v":1,"h":"Naturaleza","st":["Sencillo","Sencillo"],"co":["Red","White"],"i":"02fa0001-00970502"},{"n":85,"s":1,"en":"Pancetti","es":"Talía","sp":"Cerdo","p":"Presumida","g":"F","b":"11/14","c":"morrito","v":1,"h":"Música","st":["Cuqui","Glamuroso"],"co":["Red","Yellow"],"i":"04880001-00980502"},{"n":86,"s":1,"en":"Chief","es":"Zoilo","sp":"Lobo","p":"Gruñón","g":"M","b":"12/19","c":"ejem","v":1,"h":"Música","st":["Moderno","Sencillo"],"co":["White","Gray"],"i":"050b0001-00990502"},{"n":87,"s":1,"en":"Bunnie","es":"Coni","sp":"Conejo","p":"Alegre","g":"F","b":"5/9","c":"oy-oy-oy","v":1,"h":"Moda","st":["Cuqui","Cuqui"],"co":["Green","Pink"],"i":"04940001-009a0502"},{"n":88,"s":1,"en":"Clay","es":"Boliche","sp":"Hámster","p":"Perezoso","g":"M","b":"10/19","c":"tucu-tucu","v":1,"h":"Naturaleza","st":["Elegante","Sencillo"],"co":["Beige","Brown"],"i":"03830001-009b0502"},{"n":89,"s":1,"en":"Diana","es":"Bambina","sp":"Ciervo","p":"Presumida","g":"F","b":"1/4","c":"braaavo","v":1,"h":"Leer y aprender","st":["Elegante","Glamuroso"],"co":["Purple","Pink"],"i":"02de0001-009c0502"},{"n":90,"s":1,"en":"Axel","es":"Eustakio","sp":"Elefante","p":"Atlético","g":"M","b":"3/23","c":"ankagua","v":1,"h":"Deporte","st":["Deportivo","Sencillo"],"co":["Green","White"],"i":"03290001-009d0502"},{"n":91,"s":1,"en":"Muffy","es":"Muaré","sp":"Oveja","p":"Dulce","g":"F","b":"2/14","c":"lanas","v":1,"h":"Música","st":["Glamuroso","Elegante"],"co":["Black","Purple"],"i":"04d10001-009e0502"},{"n":92,"s":1,"en":"Henry","es":"Saperto","sp":"Rana","p":"Esnob","g":"M","b":"9/21","c":"cruacruá","v":1,"h":"Música","st":["Moderno","Sencillo"],"co":["Aqua","Blue"],"i":"034b0001-009f0502"},{"n":93,"s":1,"en":"Bertha","es":"Berta","sp":"Hipopótamo","p":"Normal","g":"F","b":"4/25","c":"glub-glub","v":1,"h":"Leer y aprender","st":["Cuqui","Elegante"],"co":["Pink","White"],"i":"03930001-00a00502"},{"n":94,"s":1,"en":"Cyrano","es":"Cirano","sp":"Oso hormiguero","p":"Gruñón","g":"M","b":"3/9","c":"achús","v":1,"h":"Leer y aprender","st":["Moderno","Deportivo"],"co":["Yellow","Beige"],"i":"02000001-00a10502"},{"n":95,"s":1,"en":"Peanut","es":"Belinda","sp":"Ardilla","p":"Alegre","g":"F","b":"6/8","c":"almendrita","v":1,"h":"Moda","st":["Cuqui","Cuqui"],"co":["Red","Colorful"],"i":"04dd0001-00a20502"},{"n":96,"s":1,"en":"Cole","es":"Nicolás","sp":"Conejo","p":"Perezoso","g":"M","b":"8/10","c":"muyayo","v":1,"h":"Naturaleza","st":["Sencillo","Cuqui"],"co":["Orange","Colorful"],"i":"04a60001-00a30502"},{"n":97,"s":1,"en":"Willow","es":"Cuqui","sp":"Oveja","p":"Presumida","g":"F","b":"11/26","c":"babeeebí","v":1,"h":"Moda","st":["Cuqui","Glamuroso"],"co":["White","Pink"],"i":"04cc0001-00a40502"},{"n":98,"s":1,"en":"Roald","es":"Bobi","sp":"Pingüino","p":"Atlético","g":"M","b":"1/5","c":"titirito","v":1,"h":"Deporte","st":["Deportivo","Sencillo"],"co":["Red","Yellow"],"i":"04600001-00a50502"},{"n":99,"s":1,"en":"Molly","es":"Deira","sp":"Pato","p":"Normal","g":"F","b":"3/7","c":"deverdá","v":1,"h":"Naturaleza","st":["Cuqui","Sencillo"],"co":["Yellow","Pink"],"i":"03170001-00a60502"},{"n":100,"s":1,"en":"Walker","es":"Miki","sp":"Perro","p":"Perezoso","g":"M","b":"6/10","c":"huesitos","v":1,"h":"Jugar","st":["Sencillo","Sencillo"],"co":["Orange","Red"],"i":"02f00001-00a70502"},{"n":101,"s":2,"en":"K.K. Slider","es":"Totakeke","sp":"Perro","g":"M","b":"8/23","v":0,"i":"01820001-00a80502"},{"n":102,"s":2,"en":"Reese","es":"Paca","sp":"Alpaca","g":"F","b":"7/5","v":0,"i":"018a0001-00a90502"},{"n":103,"s":2,"en":"Kicks","es":"Betunio","sp":"Mofeta","g":"M","b":"11/30","v":0,"i":"01940001-00aa0502"},{"n":104,"s":2,"en":"Labelle","es":"Tili","sp":"Erizo","g":"F","b":"10/31","v":0,"i":"01890001-00ab0502"},{"n":105,"s":2,"en":"Copper","es":"Vigilio","sp":"Perro","g":"M","b":"6/28","v":0,"i":"019d0001-00ac0502"},{"n":106,"s":2,"en":"Booker","es":"Nocencio","sp":"Perro","g":"M","b":"4/23","v":0,"i":"019e0001-00ad0502"},{"n":107,"s":2,"en":"Katie","es":"Cati","sp":"Gato","g":"F","b":"10/22","v":0,"i":"01b60001-00ae0502"},{"n":108,"s":2,"en":"Tommy - Uniform","es":"Nendo (uniforme)","sp":"Mapache","g":"M","b":"6/7","v":0,"i":"01860101-00af0502"},{"n":109,"s":2,"en":"Porter","es":"Estasio","sp":"Mono","g":"M","b":"4/17","v":0,"i":"01950001-00b00502"},{"n":110,"s":2,"en":"Leila","es":"Conchita","sp":"Kappa","g":"F","b":"8/16","v":0,"i":"01980001-00b10502"},{"n":111,"s":2,"en":"Shrunk","es":"Dr. Sito","sp":"Ajolote","g":"M","b":"1/2","v":0,"i":"01b10001-00b20502"},{"n":112,"s":2,"en":"Don Resetti","es":"Forma T.","sp":"Topo","g":"M","b":"5/1","v":0,"i":"018f0001-00b30502"},{"n":113,"s":2,"en":"Isabelle - Winter","es":"Canela (invierno)","sp":"Perro","g":"F","b":"12/20","v":0,"i":"01810101-00b40502"},{"n":114,"s":2,"en":"Blanca","es":"Blanca","sp":"Gato","g":"F","b":"2/8","v":0,"i":"01b30001-00b50502"},{"n":115,"s":2,"en":"Nat","es":"Papilo","sp":"Camaleón","g":"M","b":"7/25","v":0,"i":"019b0001-00b60502"},{"n":116,"s":2,"en":"Chip","es":"Martín","sp":"Castor","g":"M","b":"12/9","v":0,"i":"019a0001-00b70502"},{"n":117,"s":2,"en":"Jack","es":"Soponcio","sp":"Calabaza","g":"M","b":"10/31","v":0,"i":"01ad0001-00b80502"},{"n":118,"s":2,"en":"Poncho","es":"Poncho","sp":"Osezno","p":"Atlético","g":"M","b":"1/2","c":"bolita","v":1,"h":"Deporte","st":["Sencillo","Sencillo"],"co":["Orange","Yellow"],"i":"027f0001-00b90502"},{"n":119,"s":2,"en":"Felicity","es":"Micha","sp":"Gato","p":"Alegre","g":"F","b":"3/30","c":"miauito","v":1,"h":"Moda","st":["Cuqui","Cuqui"],"co":["Yellow","Orange"],"i":"026e0001-00ba0502"},{"n":120,"s":2,"en":"Ozzie","es":"Koloa","sp":"Koala","p":"Perezoso","g":"M","b":"5/7","c":"osete","v":1,"h":"Jugar","st":["Sencillo","Cuqui"],"co":["Yellow","Orange"],"i":"03c10001-00bb0502"},{"n":121,"s":2,"en":"Tia","es":"Meralda","sp":"Elefante","p":"Normal","g":"F","b":"11/18","c":"snuuuf","v":1,"h":"Naturaleza","st":["Cuqui","Elegante"],"co":["Black","White"],"i":"032d0001-00bc0502"},{"n":122,"s":2,"en":"Lucha","es":"Plumerio","sp":"Pájaro","p":"Esnob","g":"M","b":"12/12","c":"picopico","v":1,"h":"Deporte","st":["Deportivo","Moderno"],"co":["Black","Gray"],"i":"023c0001-00bd0502"},{"n":123,"s":2,"en":"Fuchsia","es":"Rosalina","sp":"Ciervo","p":"Dulce","g":"F","b":"9/19","c":"braaaam","v":1,"h":"Música","st":["Moderno","Moderno"],"co":["Pink","Pink"],"i":"02dc0001-00be0502"},{"n":124,"s":2,"en":"Harry","es":"Harpo","sp":"Hipopótamo","p":"Gruñón","g":"M","b":"1/7","c":"algas","v":1,"h":"Leer y aprender","st":["Moderno","Sencillo"],"co":["Green","Orange"],"i":"03980001-00bf0502"},{"n":125,"s":2,"en":"Gwen","es":"Fabiola","sp":"Pingüino","p":"Presumida","g":"F","b":"1/23","c":"crustáceo","v":1,"h":"Moda","st":["Glamuroso","Elegante"],"co":["Green","White"],"i":"04640001-00c00502"},{"n":126,"s":2,"en":"Coach","es":"Cacho","sp":"Toro","p":"Atlético","g":"M","b":"4/29","c":"chacho","v":1,"h":"Deporte","st":["Deportivo","Deportivo"],"co":["Blue","Red"],"i":"02510001-00c10502"},{"n":127,"s":2,"en":"Kitt","es":"Antípoda","sp":"Canguro","p":"Normal","g":"F","b":"10/11","c":"mi alma","v":1,"h":"Leer y aprender","st":["Elegante","Sencillo"],"co":["Purple","Red"],"i":"03d10001-00c20502"},{"n":128,"s":2,"en":"Tom","es":"Zapirón","sp":"Gato","p":"Gruñón","g":"M","b":"12/10","c":"miooou","v":1,"h":"Leer y aprender","st":["Moderno","Sencillo"],"co":["Black","Gray"],"i":"026c0001-00c30502"},{"n":129,"s":2,"en":"Tipper","es":"Pinta","sp":"Vaca","p":"Presumida","g":"F","b":"8/25","c":"cuernitos","v":1,"h":"Moda","st":["Glamuroso","Cuqui"],"co":["Colorful","Pink"],"i":"02b20001-00c40502"},{"n":130,"s":2,"en":"Prince","es":"Felipe","sp":"Rana","p":"Perezoso","g":"M","b":"7/21","c":"buuurp","v":1,"h":"Jugar","st":["Sencillo","Deportivo"],"co":["Yellow","White"],"i":"03440001-00c50502"},{"n":131,"s":2,"en":"Pate","es":"Pati","sp":"Pato","p":"Alegre","g":"F","b":"2/23","c":"cuaqui","v":1,"h":"Moda","st":["Sencillo","Cuqui"],"co":["Yellow","White"],"i":"03090001-00c60502"},{"n":132,"s":2,"en":"Vladimir","es":"Vladimir","sp":"Osezno","p":"Gruñón","g":"M","b":"8/2","c":"nyet","v":1,"h":"Jugar","st":["Sencillo","Moderno"],"co":["Yellow","Colorful"],"i":"02830001-00c70502"},{"n":133,"s":2,"en":"Savannah","es":"Sabana","sp":"Caballo","p":"Normal","g":"F","b":"1/25","c":"azucarillo","v":1,"h":"Música","st":["Moderno","Sencillo"],"co":["Aqua","Blue"],"i":"03a60001-00c80502"},{"n":134,"s":2,"en":"Kidd","es":"Cabrálex","sp":"Cabra","p":"Esnob","g":"M","b":"6/28","c":"ein","v":1,"h":"Leer y aprender","st":["Elegante","Moderno"],"co":["Gray","White"],"i":"035d0001-00c90502"},{"n":135,"s":2,"en":"Phoebe","es":"Avelina","sp":"Avestruz","p":"Dulce","g":"F","b":"4/22","c":"equilicuá","v":1,"h":"Deporte","st":["Glamuroso","Moderno"],"co":["Black","Red"],"i":"04400001-00ca0502"},{"n":136,"s":2,"en":"Egbert","es":"Norberto","sp":"Gallina","p":"Perezoso","g":"M","b":"10/14","c":"kikirikí","v":1,"h":"Jugar","st":["Sencillo","Sencillo"],"co":["Beige","Brown"],"i":"029b0001-00cb0502"},{"n":137,"s":2,"en":"Cookie","es":"Purita","sp":"Perro","p":"Alegre","g":"F","b":"6/18","c":"fresita","v":1,"h":"Moda","st":["Cuqui","Cuqui"],"co":["Green","Aqua"],"i":"02f20001-00cc0502"},{"n":138,"s":2,"en":"Sly","es":"Estallón","sp":"Cocodrilo","p":"Atlético","g":"M","b":"11/15","c":"capón","v":1,"h":"Jugar","st":["Moderno","Sencillo"],"co":["Brown","Green"],"i":"02c90001-00cd0502"},{"n":139,"s":2,"en":"Blaire","es":"Azabache","sp":"Ardilla","p":"Presumida","g":"F","b":"7/3","c":"bayita","v":1,"h":"Moda","st":["Glamuroso","Elegante"],"co":["Orange","Brown"],"i":"04de0001-00ce0502"},{"n":140,"s":2,"en":"Avery","es":"Cuzco","sp":"Águila","p":"Gruñón","g":"M","b":"2/22","c":"grrraak","v":1,"h":"Música","st":["Sencillo","Glamuroso"],"co":["Orange","Brown"],"i":"04500001-00cf0502"},{"n":141,"s":2,"en":"Nana","es":"Nana","sp":"Mono","p":"Normal","g":"F","b":"8/23","c":"monada","v":1,"h":"Leer y aprender","st":["Cuqui","Cuqui"],"co":["Pink","White"],"i":"03fa0001-00d00502"},{"n":142,"s":2,"en":"Peck","es":"Picuet","sp":"Pájaro","p":"Atlético","g":"M","b":"7/25","c":"muy fuerte","v":1,"h":"Jugar","st":["Sencillo","Deportivo"],"co":["Beige","Red"],"i":"023e0001-00d10502"},{"n":143,"s":2,"en":"Olivia","es":"Olivia","sp":"Gato","p":"Presumida","g":"F","b":"2/3","c":"raspas","v":1,"h":"Música","st":["Moderno","Elegante"],"co":["White","Black"],"i":"02600001-00d20502"},{"n":144,"s":2,"en":"Cesar","es":"César","sp":"Gorila","p":"Gruñón","g":"M","b":"9/6","c":"monigote","v":1,"h":"Deporte","st":["Moderno","Elegante"],"co":["Blue","Aqua"],"i":"03690001-00d30502"},{"n":145,"s":2,"en":"Carmen","es":"Linda","sp":"Conejo","p":"Alegre","g":"F","b":"1/6","c":"arcoíris","v":1,"h":"Moda","st":["Elegante","Cuqui"],"co":["Green","Beige"],"i":"04a40001-00d40502"},{"n":146,"s":2,"en":"Rodney","es":"Chusquis","sp":"Hámster","p":"Esnob","g":"M","b":"11/10","c":"adoya","v":1,"h":"Música","st":["Glamuroso","Moderno"],"co":["Pink","Colorful"],"i":"03810001-00d50502"},{"n":147,"s":2,"en":"Scoot","es":"Chema","sp":"Pato","p":"Atlético","g":"M","b":"6/13","c":"zapizum","v":1,"h":"Deporte","st":["Deportivo","Sencillo"],"co":["Beige","Blue"],"i":"03110001-00d60502"},{"n":148,"s":2,"en":"Whitney","es":"Lupe","sp":"Lobo","p":"Presumida","g":"F","b":"9/17","c":"auf-auf","v":1,"h":"Moda","st":["Elegante","Moderno"],"co":["Blue","Aqua"],"i":"050e0001-00d70502"},{"n":149,"s":2,"en":"Broccolo","es":"Brócoli","sp":"Ratón","p":"Perezoso","g":"M","b":"6/30","c":"dientes","v":1,"h":"Jugar","st":["Sencillo","Cuqui"],"co":["Colorful","Yellow"],"i":"04180001-00d80502"},{"n":150,"s":2,"en":"Coco","es":"Cocoloca","sp":"Conejo","p":"Normal","g":"F","b":"3/1","c":"toin-toin","v":1,"h":"Leer y aprender","st":["Sencillo","Cuqui"],"co":["Beige","Green"],"i":"04960001-00d90502"},{"n":151,"s":2,"en":"Groucho","es":"Groucho","sp":"Oso","p":"Gruñón","g":"M","b":"10/23","c":"jorrr","v":1,"h":"Música","st":["Moderno","Sencillo"],"co":["Black","Gray"],"i":"021a0001-00da0502"},{"n":152,"s":2,"en":"Wendy","es":"Franela","sp":"Oveja","p":"Alegre","g":"F","b":"8/15","c":"joyita","v":1,"h":"Moda","st":["Moderno","Glamuroso"],"co":["Red","Green"],"i":"04ce0001-00db0502"},{"n":153,"s":2,"en":"Alfonso","es":"Kaimán","sp":"Cocodrilo","p":"Perezoso","g":"M","b":"6/9","c":"ñam-ñam","v":1,"h":"Jugar","st":["Sencillo","Sencillo"],"co":["Red","Blue"],"i":"02c30001-00dc0502"},{"n":154,"s":2,"en":"Rhonda","es":"Ronda","sp":"Rinoceronte","p":"Normal","g":"F","b":"1/24","c":"jip-jip","v":1,"h":"Música","st":["Elegante","Glamuroso"],"co":["Purple","Black"],"i":"04b30001-00dd0502"},{"n":155,"s":2,"en":"Butch","es":"Bruno","sp":"Perro","p":"Gruñón","g":"M","b":"11/1","c":"gruf-gruf","v":1,"h":"Música","st":["Moderno","Sencillo"],"co":["Blue","Gray"],"i":"02eb0001-00de0502"},{"n":156,"s":2,"en":"Gabi","es":"Piluca","sp":"Conejo","p":"Alegre","g":"F","b":"12/16","c":"mari","v":1,"h":"Moda","st":["Cuqui","Glamuroso"],"co":["Brown","Red"],"i":"04990001-00df0502"},{"n":157,"s":2,"en":"Moose","es":"Sato","sp":"Ratón","p":"Atlético","g":"M","b":"9/13","c":"atiza","v":1,"h":"Deporte","st":["Moderno","Glamuroso"],"co":["Purple","Red"],"i":"041a0001-00e00502"},{"n":158,"s":2,"en":"Timbra","es":"Hebra","sp":"Oveja","p":"Presumida","g":"F","b":"10/21","c":"yalovéees","v":1,"h":"Leer y aprender","st":["Elegante","Glamuroso"],"co":["Green","Brown"],"i":"04cf0001-00e10502"},{"n":159,"s":2,"en":"Zell","es":"Corvilo","sp":"Ciervo","p":"Esnob","g":"M","b":"6/7","c":"bambín","v":1,"h":"Música","st":["Moderno","Glamuroso"],"co":["Purple","Gray"],"i":"02d80001-00e20502"},{"n":160,"s":2,"en":"Pekoe","es":"Vera","sp":"Osezno","p":"Normal","g":"F","b":"5/18","c":"pitiminí","v":1,"h":"Naturaleza","st":["Elegante","Cuqui"],"co":["Red","Beige"],"i":"028b0001-00e30502"},{"n":161,"s":2,"en":"Teddy","es":"Teddy","sp":"Oso","p":"Atlético","g":"M","b":"9/26","c":"gruuuf","v":1,"h":"Deporte","st":["Sencillo","Sencillo"],"co":["Yellow","Orange"],"i":"02140001-00e40502"},{"n":162,"s":2,"en":"Mathilda","es":"Pugilda","sp":"Canguro","p":"Presumida","g":"F","b":"11/12","c":"peso mosca","v":1,"h":"Deporte","st":["Moderno","Glamuroso"],"co":["White","Red"],"i":"03d20001-00e50502"},{"n":163,"s":2,"en":"Ed","es":"Crinaldo","sp":"Caballo","p":"Esnob","g":"M","b":"9/16","c":"jo-joy","v":1,"h":"Naturaleza","st":["Glamuroso","Elegante"],"co":["Black","Gray"],"i":"03aa0001-00e60502"},{"n":164,"s":2,"en":"Bianca","es":"Bianca","sp":"Tigre","p":"Alegre","g":"F","b":"12/13","c":"guiñito","v":1,"h":"Jugar","st":["Cuqui","Cuqui"],"co":["Pink","Orange"],"i":"05000001-00e70502"},{"n":165,"s":2,"en":"Filbert","es":"Filberto","sp":"Ardilla","p":"Perezoso","g":"M","b":"6/3","c":"guirlache","v":1,"h":"Naturaleza","st":["Sencillo","Cuqui"],"co":["Blue","White"],"i":"04df0001-00e80502"},{"n":166,"s":2,"en":"Kitty","es":"Kasandra","sp":"Gato","p":"Presumida","g":"F","b":"2/15","c":"cascabel","v":1,"h":"Moda","st":["Elegante","Glamuroso"],"co":["Green","Gray"],"i":"026b0001-00e90502"},{"n":167,"s":2,"en":"Beau","es":"Lope","sp":"Ciervo","p":"Perezoso","g":"M","b":"4/5","c":"babum","v":1,"h":"Naturaleza","st":["Sencillo","Cuqui"],"co":["Beige","Orange"],"i":"02dd0001-00ea0502"},{"n":168,"s":2,"en":"Nan","es":"Pécora","sp":"Cabra","p":"Normal","g":"F","b":"8/24","c":"peque","v":1,"h":"Naturaleza","st":["Sencillo","Elegante"],"co":["Orange","Yellow"],"i":"03570001-00eb0502"},{"n":169,"s":2,"en":"Bud","es":"Surfleo","sp":"León","p":"Atlético","g":"M","b":"8/8","c":"sabes","v":1,"h":"Deporte","st":["Deportivo","Sencillo"],"co":["Green","Yellow"],"i":"03e60001-00ec0502"},{"n":170,"s":2,"en":"Ruby","es":"Rubí","sp":"Conejo","p":"Alegre","g":"F","b":"12/25","c":"orejitas","v":1,"h":"Naturaleza","st":["Cuqui","Deportivo"],"co":["Aqua","Pink"],"i":"049d0001-00ed0502"},{"n":171,"s":2,"en":"Benedict","es":"Benito","sp":"Gallina","p":"Perezoso","g":"M","b":"10/10","c":"cocorico","v":1,"h":"Jugar","st":["Sencillo","Sencillo"],"co":["Blue","Purple"],"i":"029a0001-00ee0502"},{"n":172,"s":2,"en":"Agnes","es":"Negrea","sp":"Cerdo","p":"Dulce","g":"F","b":"4/21","c":"dindoink","v":1,"h":"Jugar","st":["Sencillo","Elegante"],"co":["Pink","White"],"i":"04890001-00ef0502"},{"n":173,"s":2,"en":"Julian","es":"Azulino","sp":"Caballo","p":"Esnob","g":"M","b":"3/15","c":"pinchito","v":1,"h":"Música","st":["Glamuroso","Moderno"],"co":["Purple","Blue"],"i":"03b10001-00f00502"},{"n":174,"s":2,"en":"Bettina","es":"Ottina","sp":"Ratón","p":"Normal","g":"F","b":"6/12","c":"piruleta","v":1,"h":"Leer y aprender","st":["Sencillo","Elegante"],"co":["White","Red"],"i":"041b0001-00f10502"},{"n":175,"s":2,"en":"Jay","es":"Jota","sp":"Pájaro","p":"Atlético","g":"M","b":"7/17","c":"heeey","v":1,"h":"Deporte","st":["Deportivo","Deportivo"],"co":["Blue","Aqua"],"i":"022d0001-00f20502"},{"n":176,"s":2,"en":"Sprinkle","es":"Rizolda","sp":"Pingüino","p":"Alegre","g":"F","b":"2/20","c":"esmoquin","v":1,"h":"Jugar","st":["Cuqui","Elegante"],"co":["Aqua","White"],"i":"046d0001-00f30502"},{"n":177,"s":2,"en":"Flip","es":"Monet","sp":"Mono","p":"Atlético","g":"M","b":"11/21","c":"afuá","v":1,"h":"Música","st":["Deportivo","Sencillo"],"co":["Blue","Yellow"],"i":"03ff0001-00f40502"},{"n":178,"s":2,"en":"Hugh","es":"Jacobo","sp":"Cerdo","p":"Perezoso","g":"M","b":"12/30","c":"groink","v":1,"h":"Jugar","st":["Sencillo","Deportivo"],"co":["Beige","Yellow"],"i":"047b0001-00f50502"},{"n":179,"s":2,"en":"Hopper","es":"Güiñón","sp":"Pingüino","p":"Gruñón","g":"M","b":"4/6","c":"esploch","v":1,"h":"Música","st":["Moderno","Sencillo"],"co":["Yellow","Red"],"i":"04620001-00f60502"},{"n":180,"s":2,"en":"Pecan","es":"Camila","sp":"Ardilla","p":"Presumida","g":"F","b":"9/10","c":"piñoncito","v":1,"h":"Moda","st":["Elegante","Glamuroso"],"co":["Purple","Beige"],"i":"04e00001-00f70502"},{"n":181,"s":2,"en":"Drake","es":"Draco","sp":"Pato","p":"Perezoso","g":"M","b":"6/25","c":"polluelo","v":1,"h":"Jugar","st":["Moderno","Sencillo"],"co":["Brown","Red"],"i":"03100001-00f80502"},{"n":182,"s":2,"en":"Alice","es":"Zelanda","sp":"Koala","p":"Normal","g":"F","b":"8/19","c":"tú","v":1,"h":"Leer y aprender","st":["Cuqui","Cuqui"],"co":["Red","Pink"],"i":"03bd0001-00f90502"},{"n":183,"s":2,"en":"Camofrog","es":"Comando","sp":"Rana","p":"Gruñón","g":"M","b":"6/5","c":"recluta","v":1,"h":"Música","st":["Moderno","Deportivo"],"co":["Blue","White"],"i":"033b0001-00fa0502"},{"n":184,"s":2,"en":"Anicotti","es":"Clorinda","sp":"Ratón","p":"Alegre","g":"F","b":"2/24","c":"cloricló","v":1,"h":"Moda","st":["Sencillo","Elegante"],"co":["Red","Pink"],"i":"04160001-00fb0502"},{"n":185,"s":2,"en":"Chops","es":"Solomín","sp":"Cerdo","p":"Esnob","g":"M","b":"10/13","c":"zoink","v":1,"h":"Leer y aprender","st":["Glamuroso","Elegante"],"co":["Red","Green"],"i":"04860001-00fc0502"},{"n":186,"s":2,"en":"Charlise","es":"Charo","sp":"Oso","p":"Dulce","g":"F","b":"4/17","c":"comolooyes","v":1,"h":"Deporte","st":["Deportivo","Cuqui"],"co":["Red","Orange"],"i":"02200001-00fd0502"},{"n":187,"s":2,"en":"Vic","es":"Artorito","sp":"Toro","p":"Gruñón","g":"M","b":"12/29","c":"muuubién","v":1,"h":"Deporte","st":["Moderno","Deportivo"],"co":["Aqua","Blue"],"i":"02520001-00fe0502"},{"n":188,"s":2,"en":"Ankha","es":"Patri","sp":"Gato","p":"Presumida","g":"F","b":"9/22","c":"marramius","v":1,"h":"Naturaleza","st":["Glamuroso","Sencillo"],"co":["Colorful","Brown"],"i":"02700001-00ff0502"},{"n":189,"s":2,"en":"Drift","es":"Surfín","sp":"Rana","p":"Atlético","g":"M","b":"10/9","c":"colega","v":1,"h":"Deporte","st":["Sencillo","Deportivo"],"co":["Orange","Red"],"i":"033c0001-01000502"},{"n":190,"s":2,"en":"Vesta","es":"Vesta","sp":"Oveja","p":"Normal","g":"F","b":"4/16","c":"beeeibi","v":1,"h":"Moda","st":["Sencillo","Cuqui"],"co":["Orange","Red"],"i":"04c50001-01010502"},{"n":191,"s":2,"en":"Marcel","es":"Eto","sp":"Perro","p":"Perezoso","g":"M","b":"12/31","c":"colmillos","v":1,"h":"Jugar","st":["Sencillo","Moderno"],"co":["Green","Blue"],"i":"02f90001-01020502"},{"n":192,"s":2,"en":"Pango","es":"Aspidora","sp":"Oso hormiguero","p":"Alegre","g":"F","b":"11/9","c":"snuf-snuf","v":1,"h":"Moda","st":["Elegante","Moderno"],"co":["Orange","Purple"],"i":"02020001-01030502"},{"n":193,"s":2,"en":"Keaton","es":"Lucho","sp":"Águila","p":"Esnob","g":"M","b":"6/1","c":"flopflop","v":1,"h":"Música","st":["Glamuroso","Moderno"],"co":["Blue","White"],"i":"04530001-01040502"},{"n":194,"s":2,"en":"Gladys","es":"Gladis","sp":"Avestruz","p":"Normal","g":"F","b":"1/15","c":"plumillas","v":1,"h":"Leer y aprender","st":["Elegante","Cuqui"],"co":["Green","Pink"],"i":"04370001-01050502"},{"n":195,"s":2,"en":"Hamphrey","es":"Arsenio","sp":"Hámster","p":"Gruñón","g":"M","b":"2/25","c":"andaquenó","v":1,"h":"Naturaleza","st":["Moderno","Sencillo"],"co":["Gray","Beige"],"i":"03850001-01060502"},{"n":196,"s":2,"en":"Freya","es":"Lupita","sp":"Lobo","p":"Presumida","g":"F","b":"12/14","c":"auuuff","v":1,"h":"Moda","st":["Elegante","Moderno"],"co":["Green","Blue"],"i":"05100001-01070502"},{"n":197,"s":2,"en":"Kid Cat","es":"Gatomán","sp":"Gato","p":"Atlético","g":"M","b":"8/1","c":"soldado","v":1,"h":"Deporte","st":["Deportivo","Sencillo"],"co":["Red","Red"],"i":"02670001-01080502"},{"n":198,"s":2,"en":"Agent S","es":"Fardilia","sp":"Ardilla","p":"Alegre","g":"F","b":"7/2","c":"piñita","v":1,"h":"Deporte","st":["Deportivo","Sencillo"],"co":["Blue","Black"],"i":"04e20001-01090502"},{"n":199,"s":2,"en":"Big Top","es":"Déivid","sp":"Elefante","p":"Perezoso","g":"M","b":"10/3","c":"mutante","v":1,"h":"Jugar","st":["Sencillo","Deportivo"],"co":["Green","Green"],"i":"03250001-010a0502"},{"n":200,"s":2,"en":"Rocket","es":"Gloria","sp":"Gorila","p":"Dulce","g":"F","b":"4/14","c":"uga-uga","v":1,"h":"Deporte","st":["Deportivo","Moderno"],"co":["Pink","Red"],"i":"03720001-010b0502"},{"n":201,"s":3,"en":"Rover","es":"Fran","sp":"Gato","g":"M","b":"2/1","v":0,"i":"018d0001-010c0502"},{"n":202,"s":3,"en":"Blathers","es":"Sócrates","sp":"Búho","g":"M","b":"9/24","v":0,"i":"01920001-010d0502"},{"n":203,"s":3,"en":"Tom Nook - Jacket","es":"Tom Nook (chaqueta)","sp":"Mapache","g":"M","b":"5/30","v":0,"i":"01830101-010e0502"},{"n":204,"s":3,"en":"Pelly","es":"Sol","sp":"Pelícano","g":"F","b":"3/19","v":0,"i":"01a00001-010f0502"},{"n":205,"s":3,"en":"Phyllis","es":"Estrella","sp":"Pelícano","g":"F","b":"11/21","v":0,"i":"01a10001-01100502"},{"n":206,"s":3,"en":"Pete","es":"Carturo","sp":"Pelícano","g":"M","b":"3/8","v":0,"i":"019f0001-01110502"},{"n":207,"s":3,"en":"Mabel","es":"Pili","sp":"Erizo","g":"F","b":"5/22","v":0,"i":"01880001-01120502"},{"n":208,"s":3,"en":"Leif","es":"Gandulio","sp":"Perezoso","g":"M","b":"8/8","v":0,"i":"01b40001-01130502"},{"n":209,"s":3,"en":"Wendell","es":"Da Morsi","sp":"Morsa","g":"M","b":"2/25","v":0,"i":"01a70001-01140502"},{"n":210,"s":3,"en":"Cyrus","es":"Al","sp":"Alpaca","g":"M","b":"1/26","v":0,"i":"018b0001-01150502"},{"n":211,"s":3,"en":"Grams","es":"Rosauria","sp":"Kappa","g":"F","b":"4/15","v":0,"i":"01990001-01160502"},{"n":212,"s":3,"en":"Timmy - Full Apron","es":"Tendo (delantal)","sp":"Mapache","g":"M","b":"6/7","v":0,"i":"01850201-01170502"},{"n":213,"s":3,"en":"Digby - Raincoat","es":"Candrés (chubasquero)","sp":"Perro","g":"M","b":"12/20","v":0,"i":"018c0101-01180502"},{"n":214,"s":3,"en":"Don Resetti - Without Hat","es":"Forma T. (sin sombrero)","sp":"Topo","g":"M","b":"5/1","v":0,"i":"018f0101-01190502"},{"n":215,"s":3,"en":"Isabelle - Kimono","es":"Canela (kimono)","sp":"Perro","g":"F","b":"12/20","v":0,"i":"01810201-011a0502"},{"n":216,"s":3,"en":"Franklin","es":"Guindo","sp":"Pavo","g":"M","b":"10/10","v":0,"i":"01ae0001-011b0502"},{"n":217,"s":3,"en":"Jingle","es":"Renato","sp":"Reno","g":"M","b":"12/24","v":0,"i":"01af0001-011c0502"},{"n":218,"s":3,"en":"Lily","es":"Lili","sp":"Rana","p":"Normal","g":"F","b":"2/4","c":"mosquita","v":1,"h":"Leer y aprender","st":["Cuqui","Sencillo"],"co":["White","Yellow"],"i":"03380001-011d0502"},{"n":219,"s":3,"en":"Anchovy","es":"Boquerón","sp":"Pájaro","p":"Perezoso","g":"M","b":"3/4","c":"piu-piu","v":1,"h":"Jugar","st":["Sencillo","Sencillo"],"co":["Colorful","Orange"],"i":"022f0001-011e0502"},{"n":220,"s":3,"en":"Tabby","es":"Liana","sp":"Gato","p":"Alegre","g":"F","b":"8/13","c":"animiaul","v":1,"h":"Música","st":["Deportivo","Moderno"],"co":["Black","Gray"],"i":"02690001-011f0502"},{"n":221,"s":3,"en":"Kody","es":"Orestes","sp":"Osezno","p":"Atlético","g":"M","b":"9/28","c":"mola","v":1,"h":"Deporte","st":["Deportivo","Sencillo"],"co":["Colorful","White"],"i":"02810001-01200502"},{"n":222,"s":3,"en":"Miranda","es":"Miranda","sp":"Pato","p":"Presumida","g":"F","b":"4/23","c":"cua-cuá","v":1,"h":"Moda","st":["Elegante","Glamuroso"],"co":["Blue","Purple"],"i":"03130001-01210502"},{"n":223,"s":3,"en":"Del","es":"Croco","sp":"Cocodrilo","p":"Gruñón","g":"M","b":"5/27","c":"chomp","v":1,"h":"Deporte","st":["Moderno","Sencillo"],"co":["Blue","White"],"i":"02c70001-01220502"},{"n":224,"s":3,"en":"Paula","es":"Lizi","sp":"Oso","p":"Dulce","g":"F","b":"3/22","c":"borobó","v":1,"h":"Deporte","st":["Cuqui","Deportivo"],"co":["Orange","Green"],"i":"021e0001-01230502"},{"n":225,"s":3,"en":"Ken","es":"Pichón","sp":"Gallina","p":"Esnob","g":"M","b":"12/23","c":"kirrí","v":1,"h":"Leer y aprender","st":["Moderno","Sencillo"],"co":["Purple","Blue"],"i":"02a60001-01240502"},{"n":226,"s":3,"en":"Mitzi","es":"Misi","sp":"Gato","p":"Normal","g":"F","b":"9/25","c":"misi-misi","v":1,"h":"Leer y aprender","st":["Sencillo","Sencillo"],"co":["Brown","Beige"],"i":"025e0001-01250502"},{"n":227,"s":3,"en":"Rodeo","es":"Rodeo","sp":"Toro","p":"Perezoso","g":"M","b":"10/29","c":"olé","v":1,"h":"Deporte","st":["Sencillo","Moderno"],"co":["Black","Red"],"i":"024b0001-01260502"},{"n":228,"s":3,"en":"Bubbles","es":"Hipólita","sp":"Hipopótamo","p":"Alegre","g":"F","b":"9/18","c":"hippie","v":1,"h":"Moda","st":["Deportivo","Cuqui"],"co":["Purple","Pink"],"i":"03920001-01270502"},{"n":229,"s":3,"en":"Cousteau","es":"Cousteau","sp":"Rana","p":"Atlético","g":"M","b":"12/17","c":"oui oui","v":1,"h":"Deporte","st":["Elegante","Glamuroso"],"co":["Green","Red"],"i":"03420001-01280502"},{"n":230,"s":3,"en":"Velma","es":"Erika","sp":"Cabra","p":"Presumida","g":"F","b":"1/14","c":"veráaas-tú","v":1,"h":"Leer y aprender","st":["Elegante","Glamuroso"],"co":["Aqua","Purple"],"i":"035c0001-01290502"},{"n":231,"s":3,"en":"Elvis","es":"Elvis","sp":"León","p":"Gruñón","g":"M","b":"7/23","c":"groar","v":1,"h":"Leer y aprender","st":["Glamuroso","Elegante"],"co":["Red","Black"],"i":"03e70001-012a0502"},{"n":232,"s":3,"en":"Canberra","es":"Canberra","sp":"Koala","p":"Dulce","g":"F","b":"5/14","c":"kolalá","v":1,"h":"Jugar","st":["Deportivo","Moderno"],"co":["Green","Aqua"],"i":"03c40001-012b0502"},{"n":233,"s":3,"en":"Colton","es":"Furio","sp":"Caballo","p":"Esnob","g":"M","b":"5/22","c":"jia","v":1,"h":"Naturaleza","st":["Glamuroso","Elegante"],"co":["Blue","Red"],"i":"03af0001-012c0502"},{"n":234,"s":3,"en":"Marina","es":"Marina","sp":"Pulpo","p":"Normal","g":"F","b":"6/26","c":"dospatas","v":1,"h":"Música","st":["Cuqui","Cuqui"],"co":["Pink","Red"],"i":"042a0001-012d0502"},{"n":235,"s":3,"en":"Spork","es":"Espork","sp":"Cerdo","p":"Perezoso","g":"M","b":"9/3","c":"pork","v":1,"h":"Jugar","st":["Sencillo","Deportivo"],"co":["Green","Colorful"],"i":"047d0001-012e0502"},{"n":236,"s":3,"en":"Freckles","es":"Rebeca","sp":"Pato","p":"Alegre","g":"F","b":"2/19","c":"cui-cuá","v":1,"h":"Moda","st":["Sencillo","Cuqui"],"co":["Green","Colorful"],"i":"030e0001-012f0502"},{"n":237,"s":3,"en":"Bam","es":"Cornelio","sp":"Ciervo","p":"Atlético","g":"M","b":"11/7","c":"galilla","v":1,"h":"Jugar","st":["Deportivo","Sencillo"],"co":["Green","Brown"],"i":"02d70001-01300502"},{"n":238,"s":3,"en":"Friga","es":"Frida","sp":"Pingüino","p":"Presumida","g":"F","b":"10/16","c":"heladito","v":1,"h":"Moda","st":["Elegante","Glamuroso"],"co":["Pink","Black"],"i":"04630001-01310502"},{"n":239,"s":3,"en":"Ricky","es":"Altramuz","sp":"Ardilla","p":"Gruñón","g":"M","b":"9/14","c":"cáscaras","v":1,"h":"Leer y aprender","st":["Moderno","Sencillo"],"co":["Blue","Red"],"i":"04e70001-01320502"},{"n":240,"s":3,"en":"Deirdre","es":"Venada","sp":"Ciervo","p":"Dulce","g":"F","b":"5/4","c":"rumiante","v":1,"h":"Jugar","st":["Sencillo","Sencillo"],"co":["Orange","Orange"],"i":"02da0001-01330502"},{"n":241,"s":3,"en":"Hans","es":"Hans","sp":"Gorila","p":"Esnob","g":"M","b":"12/5","c":"cungagún","v":1,"h":"Deporte","st":["Elegante","Glamuroso"],"co":["Gray","Blue"],"i":"03730001-01340502"},{"n":242,"s":3,"en":"Chevre","es":"Cabriola","sp":"Cabra","p":"Normal","g":"F","b":"3/6","c":"beee-beee","v":1,"h":"Leer y aprender","st":["Cuqui","Elegante"],"co":["Red","Pink"],"i":"03560001-01350502"},{"n":243,"s":3,"en":"Drago","es":"Dragonio","sp":"Cocodrilo","p":"Perezoso","g":"M","b":"2/12","c":"quemarrr","v":1,"h":"Naturaleza","st":["Elegante","Glamuroso"],"co":["Orange","Red"],"i":"02cb0001-01360502"},{"n":244,"s":3,"en":"Tangy","es":"Tricia","sp":"Gato","p":"Alegre","g":"F","b":"6/17","c":"mandarinas","v":1,"h":"Música","st":["Sencillo","Cuqui"],"co":["Green","Yellow"],"i":"02620001-01370502"},{"n":245,"s":3,"en":"Mac","es":"Pit","sp":"Perro","p":"Atlético","g":"M","b":"11/11","c":"frusky","v":1,"h":"Deporte","st":["Deportivo","Moderno"],"co":["Red","Black"],"i":"02f80001-01380502"},{"n":246,"s":3,"en":"Eloise","es":"Eloísa","sp":"Elefante","p":"Presumida","g":"F","b":"12/8","c":"orejillas","v":1,"h":"Moda","st":["Elegante","Sencillo"],"co":["Green","Orange"],"i":"03260001-01390502"},{"n":247,"s":3,"en":"Wart Jr.","es":"Saponcio","sp":"Rana","p":"Gruñón","g":"M","b":"8/21","c":"grroac","v":1,"h":"Leer y aprender","st":["Sencillo","Sencillo"],"co":["Blue","Purple"],"i":"033d0001-013a0502"},{"n":248,"s":3,"en":"Hazel","es":"Anacarda","sp":"Ardilla","p":"Dulce","g":"F","b":"8/30","c":"castaña","v":1,"h":"Jugar","st":["Deportivo","Cuqui"],"co":["Red","Yellow"],"i":"04ef0001-013b0502"},{"n":249,"s":3,"en":"Beardo","es":"Bernabé","sp":"Oso","p":"Esnob","g":"M","b":"9/27","c":"bigotre","v":1,"h":"Leer y aprender","st":["Elegante","Elegante"],"co":["Brown","Blue"],"i":"02210001-013c0502"},{"n":250,"s":3,"en":"Ava","es":"Ava","sp":"Gallina","p":"Normal","g":"F","b":"4/28","c":"piquito","v":1,"h":"Música","st":["Elegante","Cuqui"],"co":["Red","Gray"],"i":"029e0001-013d0502"},{"n":251,"s":3,"en":"Chester","es":"Osunio","sp":"Osezno","p":"Perezoso","g":"M","b":"8/6","c":"ahivá","v":1,"h":"Jugar","st":["Sencillo","Sencillo"],"co":["Yellow","Green"],"i":"028c0001-013e0502"},{"n":252,"s":3,"en":"Merry","es":"Susi","sp":"Gato","p":"Alegre","g":"F","b":"6/29","c":"michifú","v":1,"h":"Moda","st":["Cuqui","Cuqui"],"co":["Pink","Aqua"],"i":"026d0001-013f0502"},{"n":253,"s":3,"en":"Genji","es":"Sumo","sp":"Conejo","p":"Atlético","g":"M","b":"1/21","c":"mochi","v":1,"h":"Deporte","st":["Elegante","Sencillo"],"co":["Green","Purple"],"i":"049c0001-01400502"},{"n":254,"s":3,"en":"Greta","es":"Jimena","sp":"Ratón","p":"Presumida","g":"F","b":"9/5","c":"bocadito","v":1,"h":"Leer y aprender","st":["Elegante","Sencillo"],"co":["Pink","Purple"],"i":"041c0001-01410502"},{"n":255,"s":3,"en":"Wolfgang","es":"Wolfi","sp":"Lobo","p":"Gruñón","g":"M","b":"11/25","c":"grauuuh","v":1,"h":"Leer y aprender","st":["Moderno","Deportivo"],"co":["Black","Green"],"i":"050d0001-01420502"},{"n":256,"s":3,"en":"Diva","es":"Morania","sp":"Rana","p":"Dulce","g":"F","b":"10/2","c":"crocró","v":1,"h":"Deporte","st":["Glamuroso","Elegante"],"co":["Purple","Aqua"],"i":"034a0001-01430502"},{"n":257,"s":3,"en":"Klaus","es":"Gruñerto","sp":"Oso","p":"Esnob","g":"M","b":"3/31","c":"ricitos","v":1,"h":"Leer y aprender","st":["Sencillo","Sencillo"],"co":["Gray","White"],"i":"02220001-01440502"},{"n":258,"s":3,"en":"Daisy","es":"Luisa","sp":"Perro","p":"Normal","g":"F","b":"11/16","c":"guaay","v":1,"h":"Leer y aprender","st":["Sencillo","Cuqui"],"co":["Colorful","Blue"],"i":"02f10001-01450502"},{"n":259,"s":3,"en":"Stinky","es":"Micifuz","sp":"Gato","p":"Atlético","g":"M","b":"8/17","c":"marramiau","v":1,"h":"Deporte","st":["Deportivo","Sencillo"],"co":["Red","Blue"],"i":"026a0001-01460502"},{"n":260,"s":3,"en":"Tammi","es":"Tami","sp":"Mono","p":"Alegre","g":"F","b":"4/2","c":"uki-uki","v":1,"h":"Moda","st":["Cuqui","Deportivo"],"co":["Purple","Green"],"i":"03fc0001-01470502"},{"n":261,"s":3,"en":"Tucker","es":"Pirolo","sp":"Elefante","p":"Perezoso","g":"M","b":"9/7","c":"purupú","v":1,"h":"Naturaleza","st":["Deportivo","Sencillo"],"co":["Yellow","Orange"],"i":"032c0001-01480502"},{"n":262,"s":3,"en":"Blanche","es":"Rocío","sp":"Avestruz","p":"Presumida","g":"F","b":"12/21","c":"goticas","v":1,"h":"Naturaleza","st":["Elegante","Glamuroso"],"co":["Black","Brown"],"i":"043e0001-01490502"},{"n":263,"s":3,"en":"Gaston","es":"Gastón","sp":"Conejo","p":"Gruñón","g":"M","b":"10/28","c":"mon chou","v":1,"h":"Leer y aprender","st":["Sencillo","Glamuroso"],"co":["Brown","Orange"],"i":"04980001-014a0502"},{"n":264,"s":3,"en":"Marshal","es":"Munchi","sp":"Ardilla","p":"Esnob","g":"M","b":"9/29","c":"tecuén","v":1,"h":"Música","st":["Elegante","Moderno"],"co":["Aqua","Blue"],"i":"04ee0001-014b0502"},{"n":265,"s":3,"en":"Gala","es":"Marita","sp":"Cerdo","p":"Normal","g":"F","b":"3/5","c":"chanchi","v":1,"h":"Leer y aprender","st":["Cuqui","Elegante"],"co":["Pink","White"],"i":"04850001-014c0502"},{"n":266,"s":3,"en":"Joey","es":"Pascual","sp":"Pato","p":"Perezoso","g":"M","b":"1/3","c":"uac-uac","v":1,"h":"Jugar","st":["Sencillo","Sencillo"],"co":["Green","Blue"],"i":"03080001-014d0502"},{"n":267,"s":3,"en":"Pippy","es":"Méloni","sp":"Conejo","p":"Alegre","g":"F","b":"6/14","c":"pipita","v":1,"h":"Moda","st":["Cuqui","Sencillo"],"co":["Green","Brown"],"i":"049a0001-014e0502"},{"n":268,"s":3,"en":"Buck","es":"Trotón","sp":"Caballo","p":"Atlético","g":"M","b":"4/4","c":"zanahoria","v":1,"h":"Deporte","st":["Deportivo","Sencillo"],"co":["Gray","Brown"],"i":"03a40001-014f0502"},{"n":269,"s":3,"en":"Bree","es":"Brie","sp":"Ratón","p":"Presumida","g":"F","b":"7/7","c":"orejas","v":1,"h":"Moda","st":["Elegante","Glamuroso"],"co":["Black","Blue"],"i":"040f0001-01500502"},{"n":270,"s":3,"en":"Rooney","es":"Cerillo","sp":"Canguro","p":"Gruñón","g":"M","b":"12/1","c":"chimpón","v":1,"h":"Deporte","st":["Deportivo","Deportivo"],"co":["Gray","Black"],"i":"03da0001-01510502"},{"n":271,"s":3,"en":"Curlos","es":"Carnerio","sp":"Oveja","p":"Esnob","g":"M","b":"5/8","c":"lanitas","v":1,"h":"Naturaleza","st":["Deportivo","Glamuroso"],"co":["Red","Green"],"i":"04cd0001-01520502"},{"n":272,"s":3,"en":"Skye","es":"Alderia","sp":"Lobo","p":"Normal","g":"F","b":"3/24","c":"auuu","v":1,"h":"Música","st":["Cuqui","Cuqui"],"co":["Blue","White"],"i":"05140001-01530502"},{"n":273,"s":3,"en":"Moe","es":"Tristán","sp":"Gato","p":"Perezoso","g":"M","b":"1/12","c":"grrrroou","v":1,"h":"Jugar","st":["Deportivo","Sencillo"],"co":["Black","Gray"],"i":"02650001-01540502"},{"n":274,"s":3,"en":"Flora","es":"Azucena","sp":"Avestruz","p":"Alegre","g":"F","b":"2/9","c":"croqui","v":1,"h":"Jugar","st":["Cuqui","Deportivo"],"co":["Colorful","Pink"],"i":"043f0001-01550502"},{"n":275,"s":3,"en":"Hamlet","es":"Bombo","sp":"Hámster","p":"Atlético","g":"M","b":"5/30","c":"chucufá","v":1,"h":"Jugar","st":["Sencillo","Deportivo"],"co":["Purple","Blue"],"i":"037e0001-01560502"},{"n":276,"s":3,"en":"Astrid","es":"Astrid","sp":"Canguro","p":"Presumida","g":"F","b":"9/8","c":"mascotita","v":1,"h":"Música","st":["Moderno","Deportivo"],"co":["Black","Colorful"],"i":"03d60001-01570502"},{"n":277,"s":3,"en":"Monty","es":"Burton","sp":"Mono","p":"Gruñón","g":"M","b":"12/7","c":"uuuuh-ah","v":1,"h":"Leer y aprender","st":["Moderno","Moderno"],"co":["Yellow","Gray"],"i":"03fd0001-01580502"},{"n":278,"s":3,"en":"Dora","es":"Dori","sp":"Ratón","p":"Normal","g":"F","b":"2/18","c":"cuiqui","v":1,"h":"Leer y aprender","st":["Sencillo","Elegante"],"co":["Blue","Aqua"],"i":"040c0001-01590502"},{"n":279,"s":3,"en":"Biskit","es":"Amnesio","sp":"Perro","p":"Perezoso","g":"M","b":"5/13","c":"guau","v":1,"h":"Jugar","st":["Glamuroso","Sencillo"],"co":["Purple","Colorful"],"i":"02ed0001-015a0502"},{"n":280,"s":3,"en":"Victoria","es":"Victoria","sp":"Caballo","p":"Alegre","g":"F","b":"7/11","c":"terroncito","v":1,"h":"Deporte","st":["Deportivo","Sencillo"],"co":["Yellow","Orange"],"i":"03a50001-015b0502"},{"n":281,"s":3,"en":"Lyman","es":"Chipi","sp":"Koala","p":"Atlético","g":"M","b":"10/12","c":"trololó","v":1,"h":"Jugar","st":["Sencillo","Deportivo"],"co":["Aqua","Yellow"],"i":"03c50001-015c0502"},{"n":282,"s":3,"en":"Violet","es":"Magenta","sp":"Gorila","p":"Presumida","g":"F","b":"9/1","c":"canapé","v":1,"h":"Deporte","st":["Glamuroso","Moderno"],"co":["Purple","Pink"],"i":"03700001-015d0502"},{"n":283,"s":3,"en":"Frank","es":"Aquilino","sp":"Águila","p":"Gruñón","g":"M","b":"7/30","c":"vulanico","v":1,"h":"Leer y aprender","st":["Glamuroso","Moderno"],"co":["Brown","Yellow"],"i":"04510001-015e0502"},{"n":284,"s":3,"en":"Chadder","es":"Roque","sp":"Ratón","p":"Esnob","g":"M","b":"12/15","c":"fundifún","v":1,"h":"Deporte","st":["Elegante","Glamuroso"],"co":["Black","Gray"],"i":"041e0001-015f0502"},{"n":285,"s":3,"en":"Merengue","es":"Natura","sp":"Rinoceronte","p":"Normal","g":"F","b":"3/19","c":"fresitas","v":1,"h":"Naturaleza","st":["Cuqui","Sencillo"],"co":["White","Red"],"i":"04b90001-01600502"},{"n":286,"s":3,"en":"Cube","es":"Cube","sp":"Pingüino","p":"Perezoso","g":"M","b":"1/29","c":"waap","v":1,"h":"Jugar","st":["Sencillo","Cuqui"],"co":["Yellow","Colorful"],"i":"04610001-01610502"},{"n":287,"s":3,"en":"Claudia","es":"Lilu","sp":"Tigre","p":"Presumida","g":"F","b":"11/22","c":"mindundi","v":1,"h":"Música","st":["Glamuroso","Elegante"],"co":["Purple","White"],"i":"04ff0001-01620502"},{"n":288,"s":3,"en":"Curly","es":"Rufueto","sp":"Cerdo","p":"Atlético","g":"M","b":"7/26","c":"ñoink","v":1,"h":"Deporte","st":["Sencillo","Deportivo"],"co":["Yellow","Colorful"],"i":"04780001-01630502"},{"n":289,"s":3,"en":"Boomer","es":"Serafino","sp":"Pingüino","p":"Perezoso","g":"M","b":"2/7","c":"humanoide","v":1,"h":"Deporte","st":["Sencillo","Moderno"],"co":["Brown","Beige"],"i":"04690001-01640502"},{"n":290,"s":3,"en":"Caroline","es":"Mariló","sp":"Ardilla","p":"Normal","g":"F","b":"7/15","c":"ulaaaa","v":1,"h":"Música","st":["Cuqui","Glamuroso"],"co":["Colorful","White"],"i":"04e30001-01650502"},{"n":291,"s":3,"en":"Sparro","es":"Jaime","sp":"Pájaro","p":"Atlético","g":"M","b":"11/20","c":"gorrión","v":1,"h":"Jugar","st":["Deportivo","Sencillo"],"co":["Green","Gray"],"i":"023f0001-01660502"},{"n":292,"s":3,"en":"Baabara","es":"Beelén","sp":"Oveja","p":"Presumida","g":"F","b":"3/28","c":"peeelusa","v":1,"h":"Moda","st":["Glamuroso","Elegante"],"co":["Purple","Blue"],"i":"04c60001-01670502"},{"n":293,"s":3,"en":"Rolf","es":"Albino","sp":"Tigre","p":"Gruñón","g":"M","b":"8/22","c":"grooorf","v":1,"h":"Deporte","st":["Moderno","Deportivo"],"co":["Blue","Black"],"i":"04fa0001-01680502"},{"n":294,"s":3,"en":"Maple","es":"Dulce","sp":"Osezno","p":"Normal","g":"F","b":"6/15","c":"caramelito","v":1,"h":"Leer y aprender","st":["Sencillo","Cuqui"],"co":["Beige","Green"],"i":"027e0001-01690502"},{"n":295,"s":3,"en":"Antonio","es":"Antonio","sp":"Oso hormiguero","p":"Atlético","g":"M","b":"10/20","c":"fufuf","v":1,"h":"Deporte","st":["Sencillo","Sencillo"],"co":["Aqua","Blue"],"i":"02010001-016a0502"},{"n":296,"s":3,"en":"Soleil","es":"Soraya","sp":"Hámster","p":"Presumida","g":"F","b":"8/9","c":"moflete","v":1,"h":"Leer y aprender","st":["Moderno","Glamuroso"],"co":["Red","Yellow"],"i":"03820001-016b0502"},{"n":297,"s":3,"en":"Apollo","es":"Apolo","sp":"Águila","p":"Gruñón","g":"M","b":"7/4","c":"rapaz","v":1,"h":"Música","st":["Moderno","Sencillo"],"co":["Black","Black"],"i":"044b0001-016c0502"},{"n":298,"s":3,"en":"Derwin","es":"Torcuato","sp":"Pato","p":"Perezoso","g":"M","b":"5/25","c":"cuato","v":1,"h":"Jugar","st":["Sencillo","Elegante"],"co":["Yellow","Beige"],"i":"030f0001-016d0502"},{"n":299,"s":3,"en":"Francine","es":"Natacha","sp":"Conejo","p":"Presumida","g":"F","b":"1/22","c":"kaninchen","v":1,"h":"Moda","st":["Elegante","Glamuroso"],"co":["Blue","Black"],"i":"04a00001-016e0502"},{"n":300,"s":3,"en":"Chrissy","es":"Lali","sp":"Conejo","p":"Alegre","g":"F","b":"8/28","c":"mimomimo","v":1,"h":"Moda","st":["Cuqui","Cuqui"],"co":["Pink","White"],"i":"04a10001-016f0502"},{"n":301,"s":4,"en":"Isabelle - Dress","es":"Canela (vestido)","sp":"Perro","g":"F","b":"12/20","v":0,"i":"01810301-01700502"},{"n":302,"s":4,"en":"Brewster","es":"Fígaro","sp":"Paloma","g":"M","b":"10/15","v":0,"i":"01900001-01710502"},{"n":303,"s":4,"en":"Katrina","es":"Katrina","sp":"Pantera","g":"F","b":"10/28","v":0,"i":"01a50001-01720502"},{"n":304,"s":4,"en":"Phineas","es":"Elio","sp":"León marino","g":"M","b":"6/20","v":0,"i":"019c0001-01730502"},{"n":305,"s":4,"en":"Celeste","es":"Estela","sp":"Búho","g":"F","b":"9/7","v":0,"i":"01930001-01740502"},{"n":306,"s":4,"en":"Tommy - Suit","es":"Nendo (traje)","sp":"Mapache","g":"M","b":"6/7","v":0,"i":"01860301-01750502"},{"n":307,"s":4,"en":"Gracie","es":"Graciela","sp":"Jirafa","g":"F","b":"11/14","v":0,"i":"01a90001-01760502"},{"n":308,"s":4,"en":"Leilani","es":"Marimar","sp":"Kappa","g":"F","b":"9/26","v":0,"i":"01970001-01770502"},{"n":309,"s":4,"en":"Resetti - Without Hat","es":"Rese T. (sin sombrero)","sp":"Topo","g":"M","b":"4/6","v":0,"i":"018e0101-01780502"},{"n":310,"s":4,"en":"Timmy - Suit","es":"Tendo (traje)","sp":"Mapache","g":"M","b":"6/7","v":0,"i":"01850401-01790502"},{"n":311,"s":4,"en":"Lottie - Black Skirt And Bow","es":"Nuria (falda negra y lazo)","sp":"Nutria","g":"F","b":"9/12","v":0,"i":"01c10101-017a0502"},{"n":312,"s":4,"en":"Shrunk - Loud Jacket","es":"Dr. Sito (chaqueta llamativa)","sp":"Ajolote","g":"M","b":"1/2","v":0,"i":"01b10101-017b0502"},{"n":313,"s":4,"en":"Pave","es":"Conga","sp":"Pavo real","g":"M","b":"3/3","v":0,"i":"01ab0001-017c0502"},{"n":314,"s":4,"en":"Gulliver","es":"Gulliver","sp":"Gaviota","g":"M","b":"5/25","v":0,"i":"01a20001-017d0502"},{"n":315,"s":4,"en":"Redd - Shirt","es":"Ladino (camisa)","sp":"Zorro","g":"M","b":"10/18","v":0,"i":"01a80101-017e0502"},{"n":316,"s":4,"en":"Zipper","es":"Coti","sp":"Conejo","g":"M","b":"3/11","v":0,"i":"01ac0001-017f0502"},{"n":317,"s":4,"en":"Goldie","es":"Tere","sp":"Perro","p":"Normal","g":"F","b":"12/27","c":"guau-guau","v":1,"h":"Naturaleza","st":["Sencillo","Cuqui"],"co":["Yellow","Orange"],"i":"02ea0001-01800502"},{"n":318,"s":4,"en":"Stitches","es":"Parches","sp":"Osezno","p":"Perezoso","g":"M","b":"2/10","c":"peluche","v":1,"h":"Jugar","st":["Sencillo","Cuqui"],"co":["Colorful","White"],"i":"02820001-01810502"},{"n":319,"s":4,"en":"Pinky","es":"Violeta","sp":"Oso","p":"Alegre","g":"F","b":"9/9","c":"terronillo","v":1,"h":"Moda","st":["Cuqui","Sencillo"],"co":["Red","Pink"],"i":"02150001-01820502"},{"n":320,"s":4,"en":"Mott","es":"Jones","sp":"León","p":"Atlético","g":"M","b":"7/10","c":"sapristi","v":1,"h":"Deporte","st":["Deportivo","Elegante"],"co":["Blue","Green"],"i":"03ec0001-01830502"},{"n":321,"s":4,"en":"Mallary","es":"Mirta","sp":"Pato","p":"Presumida","g":"F","b":"11/17","c":"recuac","v":1,"h":"Moda","st":["Moderno","Glamuroso"],"co":["Blue","White"],"i":"030d0001-01840502"},{"n":322,"s":4,"en":"Rocco","es":"Roco","sp":"Hipopótamo","p":"Gruñón","g":"M","b":"8/18","c":"batracio","v":1,"h":"Leer y aprender","st":["Sencillo","Moderno"],"co":["Yellow","Black"],"i":"03900001-01850502"},{"n":323,"s":4,"en":"Katt","es":"Melina","sp":"Gato","p":"Dulce","g":"F","b":"4/27","c":"salmonete","v":1,"h":"Música","st":["Moderno","Moderno"],"co":["Purple","Black"],"i":"02720001-01860502"},{"n":324,"s":4,"en":"Graham","es":"Roelio","sp":"Hámster","p":"Esnob","g":"M","b":"6/20","c":"ñisqui","v":1,"h":"Leer y aprender","st":["Sencillo","Moderno"],"co":["Green","Orange"],"i":"03800001-01870502"},{"n":325,"s":4,"en":"Peaches","es":"Perla","sp":"Caballo","p":"Normal","g":"F","b":"11/28","c":"niiiih","v":1,"h":"Leer y aprender","st":["Cuqui","Sencillo"],"co":["Colorful","Aqua"],"i":"03ac0001-01880502"},{"n":326,"s":4,"en":"Dizzy","es":"Quique","sp":"Elefante","p":"Perezoso","g":"M","b":"7/14","c":"naricita","v":1,"h":"Jugar","st":["Sencillo","Sencillo"],"co":["Yellow","Blue"],"i":"03240001-01890502"},{"n":327,"s":4,"en":"Penelope","es":"Adela","sp":"Ratón","p":"Alegre","g":"F","b":"2/5","c":"migas","v":1,"h":"Moda","st":["Cuqui","Glamuroso"],"co":["Pink","Red"],"i":"041d0001-018a0502"},{"n":328,"s":4,"en":"Boone","es":"Babú","sp":"Gorila","p":"Atlético","g":"M","b":"9/12","c":"angaua","v":1,"h":"Deporte","st":["Elegante","Moderno"],"co":["Colorful","Red"],"i":"036b0001-018b0502"},{"n":329,"s":4,"en":"Broffina","es":"Brunilda","sp":"Gallina","p":"Presumida","g":"F","b":"10/24","c":"pitas","v":1,"h":"Música","st":["Glamuroso","Elegante"],"co":["Black","Red"],"i":"02a50001-018c0502"},{"n":330,"s":4,"en":"Croque","es":"Ranolfo","sp":"Rana","p":"Gruñón","g":"M","b":"7/18","c":"yastá","v":1,"h":"Naturaleza","st":["Elegante","Moderno"],"co":["Red","Orange"],"i":"03490001-018d0502"},{"n":331,"s":4,"en":"Pashmina","es":"Carla","sp":"Cabra","p":"Dulce","g":"F","b":"12/26","c":"muy bieeen","v":1,"h":"Música","st":["Moderno","Elegante"],"co":["Red","Colorful"],"i":"035e0001-018e0502"},{"n":332,"s":4,"en":"Shep","es":"Fleco","sp":"Perro","p":"Esnob","g":"M","b":"11/24","c":"tufos","v":1,"h":"Leer y aprender","st":["Sencillo","Moderno"],"co":["Aqua","Blue"],"i":"02fc0001-018f0502"},{"n":333,"s":4,"en":"Lolly","es":"Feli","sp":"Gato","p":"Normal","g":"F","b":"3/27","c":"purrrr","v":1,"h":"Música","st":["Sencillo","Sencillo"],"co":["Gray","Pink"],"i":"026f0001-01900502"},{"n":334,"s":4,"en":"Erik","es":"Cervasio","sp":"Ciervo","p":"Perezoso","g":"M","b":"7/27","c":"ñume-ñume","v":1,"h":"Naturaleza","st":["Sencillo","Sencillo"],"co":["Beige","Red"],"i":"02df0001-01910502"},{"n":335,"s":4,"en":"Dotty","es":"Katia","sp":"Conejo","p":"Alegre","g":"F","b":"3/14","c":"trompis","v":1,"h":"Moda","st":["Sencillo","Cuqui"],"co":["Blue","Black"],"i":"04950001-01920502"},{"n":336,"s":4,"en":"Pierce","es":"Hugo","sp":"Águila","p":"Atlético","g":"M","b":"1/8","c":"aguililla","v":1,"h":"Deporte","st":["Elegante","Deportivo"],"co":["Orange","Yellow"],"i":"044d0001-01930502"},{"n":337,"s":4,"en":"Queenie","es":"Marujita","sp":"Avestruz","p":"Presumida","g":"F","b":"11/13","c":"gallina","v":1,"h":"Moda","st":["Glamuroso","Elegante"],"co":["Black","Gray"],"i":"04360001-01940502"},{"n":338,"s":4,"en":"Fang","es":"Colmillo","sp":"Lobo","p":"Gruñón","g":"M","b":"12/18","c":"en-ñac","v":1,"h":"Leer y aprender","st":["Sencillo","Moderno"],"co":["White","Aqua"],"i":"05110001-01950502"},{"n":339,"s":4,"en":"Frita","es":"Ovinia","sp":"Oveja","p":"Dulce","g":"F","b":"7/16","c":"berebé","v":1,"h":"Música","st":["Deportivo","Cuqui"],"co":["Yellow","Red"],"i":"04d00001-01960502"},{"n":340,"s":4,"en":"Tex","es":"Tomeo","sp":"Pingüino","p":"Esnob","g":"M","b":"10/6","c":"siclaro","v":1,"h":"Música","st":["Moderno","Elegante"],"co":["Black","Gray"],"i":"046b0001-01970502"},{"n":341,"s":4,"en":"Melba","es":"Melba","sp":"Koala","p":"Normal","g":"F","b":"4/12","c":"tesoro","v":1,"h":"Leer y aprender","st":["Cuqui","Cuqui"],"co":["White","Green"],"i":"03be0001-01980502"},{"n":342,"s":4,"en":"Bones","es":"Cándido","sp":"Perro","p":"Perezoso","g":"M","b":"8/4","c":"yip yip","v":1,"h":"Jugar","st":["Sencillo","Cuqui"],"co":["Beige","Brown"],"i":"02ee0001-01990502"},{"n":343,"s":4,"en":"Anabelle","es":"Anabel","sp":"Oso hormiguero","p":"Alegre","g":"F","b":"2/16","c":"esnoink","v":1,"h":"Moda","st":["Cuqui","Sencillo"],"co":["Green","Blue"],"i":"02030001-019a0502"},{"n":344,"s":4,"en":"Rudy","es":"Rufino","sp":"Gato","p":"Atlético","g":"M","b":"12/20","c":"cachusco","v":1,"h":"Jugar","st":["Deportivo","Sencillo"],"co":["Yellow","Beige"],"i":"02710001-019b0502"},{"n":345,"s":4,"en":"Naomi","es":"Regina","sp":"Vaca","p":"Presumida","g":"F","b":"2/28","c":"merengue","v":1,"h":"Moda","st":["Elegante","Glamuroso"],"co":["Colorful","Purple"],"i":"02b80001-019c0502"},{"n":346,"s":4,"en":"Peewee","es":"Lotar","sp":"Gorila","p":"Gruñón","g":"M","b":"9/11","c":"cani","v":1,"h":"Deporte","st":["Deportivo","Moderno"],"co":["Orange","Blue"],"i":"036a0001-019d0502"},{"n":347,"s":4,"en":"Tammy","es":"Aída","sp":"Osezno","p":"Dulce","g":"F","b":"6/23","c":"tararí","v":1,"h":"Jugar","st":["Moderno","Deportivo"],"co":["Red","Purple"],"i":"028e0001-019e0502"},{"n":348,"s":4,"en":"Olaf","es":"Olaf","sp":"Oso hormiguero","p":"Esnob","g":"M","b":"5/19","c":"fruf","v":1,"h":"Leer y aprender","st":["Elegante","Glamuroso"],"co":["Red","Black"],"i":"02090001-019f0502"},{"n":349,"s":4,"en":"Lucy","es":"Aurelia","sp":"Cerdo","p":"Normal","g":"F","b":"6/2","c":"cochín","v":1,"h":"Música","st":["Cuqui","Elegante"],"co":["Pink","Red"],"i":"047c0001-01a00502"},{"n":350,"s":4,"en":"Elmer","es":"Jacinto","sp":"Caballo","p":"Perezoso","g":"M","b":"10/5","c":"pezuñitas","v":1,"h":"Jugar","st":["Sencillo","Moderno"],"co":["Blue","White"],"i":"03a70001-01a10502"},{"n":351,"s":4,"en":"Puddles","es":"Nenúfar","sp":"Rana","p":"Alegre","g":"F","b":"1/13","c":"esplís","v":1,"h":"Moda","st":["Cuqui","Glamuroso"],"co":["Green","Pink"],"i":"033e0001-01a20502"},{"n":352,"s":4,"en":"Rory","es":"Rogelio","sp":"León","p":"Atlético","g":"M","b":"8/7","c":"ticotaco","v":1,"h":"Música","st":["Sencillo","Deportivo"],"co":["Blue","Red"],"i":"03ed0001-01a30502"},{"n":353,"s":4,"en":"Elise","es":"Mayra","sp":"Mono","p":"Presumida","g":"F","b":"3/21","c":"ricura","v":1,"h":"Moda","st":["Elegante","Glamuroso"],"co":["Purple","Red"],"i":"03fe0001-01a40502"},{"n":354,"s":4,"en":"Walt","es":"Brinco","sp":"Canguro","p":"Gruñón","g":"M","b":"4/24","c":"boing","v":1,"h":"Deporte","st":["Moderno","Moderno"],"co":["Black","Gray"],"i":"03d90001-01a50502"},{"n":355,"s":4,"en":"Mira","es":"Amparo","sp":"Conejo","p":"Dulce","g":"F","b":"7/6","c":"muesli","v":1,"h":"Deporte","st":["Deportivo","Moderno"],"co":["Red","Yellow"],"i":"04a70001-01a60502"},{"n":356,"s":4,"en":"Pietro","es":"Kikolor","sp":"Oveja","p":"Esnob","g":"M","b":"4/19","c":"moquimoqui","v":1,"h":"Música","st":["Glamuroso","Sencillo"],"co":["Colorful","Red"],"i":"04d20001-01a70502"},{"n":357,"s":4,"en":"Aurora","es":"Aurora","sp":"Pingüino","p":"Normal","g":"F","b":"1/27","c":"pescadito","v":1,"h":"Leer y aprender","st":["Cuqui","Elegante"],"co":["Pink","Red"],"i":"045f0001-01a80502"},{"n":358,"s":4,"en":"Papi","es":"Bayo","sp":"Caballo","p":"Perezoso","g":"M","b":"1/10","c":"quepassa","v":1,"h":"Naturaleza","st":["Sencillo","Sencillo"],"co":["Orange","Aqua"],"i":"03b00001-01a90502"},{"n":359,"s":4,"en":"Apple","es":"Rosi","sp":"Hámster","p":"Alegre","g":"F","b":"9/24","c":"do-re-mi","v":1,"h":"Jugar","st":["Cuqui","Sencillo"],"co":["Colorful","Red"],"i":"037f0001-01aa0502"},{"n":360,"s":4,"en":"Rod","es":"Rodi","sp":"Ratón","p":"Atlético","g":"M","b":"8/14","c":"quesito","v":1,"h":"Deporte","st":["Deportivo","Moderno"],"co":["Blue","Aqua"],"i":"04110001-01ab0502"},{"n":361,"s":4,"en":"Purrl","es":"Wanda","sp":"Gato","p":"Presumida","g":"F","b":"5/29","c":"tontaina","v":1,"h":"Moda","st":["Moderno","Elegante"],"co":["Gray","Blue"],"i":"02640001-01ac0502"},{"n":362,"s":4,"en":"Static","es":"Protón","sp":"Ardilla","p":"Gruñón","g":"M","b":"7/9","c":"avería","v":1,"h":"Música","st":["Moderno","Deportivo"],"co":["Black","Yellow"],"i":"04e50001-01ad0502"},{"n":363,"s":4,"en":"Celia","es":"Jazmín","sp":"Águila","p":"Normal","g":"F","b":"3/25","c":"plumis","v":1,"h":"Naturaleza","st":["Elegante","Cuqui"],"co":["Pink","Green"],"i":"04540001-01ae0502"},{"n":364,"s":4,"en":"Zucker","es":"Paulino","sp":"Pulpo","p":"Perezoso","g":"M","b":"3/8","c":"churubú","v":1,"h":"Naturaleza","st":["Sencillo","Cuqui"],"co":["Blue","Yellow"],"i":"042b0001-01af0502"},{"n":365,"s":4,"en":"Peggy","es":"Peggy","sp":"Cerdo","p":"Alegre","g":"F","b":"5/23","c":"trufita","v":1,"h":"Moda","st":["Cuqui","Deportivo"],"co":["Blue","Red"],"i":"04830001-01b00502"},{"n":366,"s":4,"en":"Ribbot","es":"Ranobot","sp":"Rana","p":"Atlético","g":"M","b":"2/13","c":"crobit","v":1,"h":"Deporte","st":["Sencillo","Deportivo"],"co":["Blue","Aqua"],"i":"03390001-01b10502"},{"n":367,"s":4,"en":"Annalise","es":"Isadora","sp":"Caballo","p":"Presumida","g":"F","b":"12/2","c":"criatura","v":1,"h":"Moda","st":["Elegante","Deportivo"],"co":["Blue","Purple"],"i":"03ad0001-01b20502"},{"n":368,"s":4,"en":"Chow","es":"Pando","sp":"Oso","p":"Gruñón","g":"M","b":"7/22","c":"ándale-oso","v":1,"h":"Deporte","st":["Moderno","Glamuroso"],"co":["Black","White"],"i":"02170001-01b30502"},{"n":369,"s":4,"en":"Sylvia","es":"Cándida","sp":"Canguro","p":"Dulce","g":"F","b":"5/3","c":"púgil","v":1,"h":"Música","st":["Sencillo","Glamuroso"],"co":["Yellow","Green"],"i":"03d70001-01b40502"},{"n":370,"s":4,"en":"Jacques","es":"Gorrelmo","sp":"Pájaro","p":"Esnob","g":"M","b":"6/22","c":"chapó","v":1,"h":"Música","st":["Moderno","Sencillo"],"co":["Green","Black"],"i":"023d0001-01b50502"},{"n":371,"s":4,"en":"Sally","es":"Praliné","sp":"Ardilla","p":"Normal","g":"F","b":"6/19","c":"ramita","v":1,"h":"Música","st":["Sencillo","Elegante"],"co":["White","Beige"],"i":"04e40001-01b60502"},{"n":372,"s":4,"en":"Doc","es":"Crispín","sp":"Conejo","p":"Perezoso","g":"M","b":"3/16","c":"y tal","v":1,"h":"Leer y aprender","st":["Sencillo","Elegante"],"co":["Gray","Beige"],"i":"049e0001-01b70502"},{"n":373,"s":4,"en":"Pompom","es":"Flopi","sp":"Pato","p":"Alegre","g":"F","b":"2/11","c":"sinplumas","v":1,"h":"Música","st":["Cuqui","Sencillo"],"co":["Pink","Aqua"],"i":"030c0001-01b80502"},{"n":374,"s":4,"en":"Tank","es":"Aníbal","sp":"Rinoceronte","p":"Atlético","g":"M","b":"5/6","c":"tapumba","v":1,"h":"Deporte","st":["Deportivo","Sencillo"],"co":["Red","Green"],"i":"04b20001-01b90502"},{"n":375,"s":4,"en":"Becky","es":"Ramina","sp":"Gallina","p":"Presumida","g":"F","b":"12/9","c":"cucurrús","v":1,"h":"Música","st":["Glamuroso","Elegante"],"co":["Purple","Pink"],"i":"02a20001-01ba0502"},{"n":376,"s":4,"en":"Rizzo","es":"Ratolón","sp":"Ratón","p":"Gruñón","g":"M","b":"1/17","c":"ñiiiik","v":1,"h":"Leer y aprender","st":["Sencillo","Moderno"],"co":["Black","Gray"],"i":"04150001-01bb0502"},{"n":377,"s":4,"en":"Sydney","es":"Sidney","sp":"Koala","p":"Normal","g":"F","b":"6/21","c":"súper","v":1,"h":"Música","st":["Cuqui","Sencillo"],"co":["Beige","Yellow"],"i":"03bf0001-01bc0502"},{"n":378,"s":4,"en":"Barold","es":"Plácido","sp":"Osezno","p":"Perezoso","g":"M","b":"3/2","c":"apurri","v":1,"h":"Jugar","st":["Sencillo","Moderno"],"co":["Yellow","Black"],"i":"028d0001-01bd0502"},{"n":379,"s":4,"en":"Nibbles","es":"Dentina","sp":"Ardilla","p":"Alegre","g":"F","b":"7/19","c":"bellotita","v":1,"h":"Moda","st":["Cuqui","Deportivo"],"co":["Red","Yellow"],"i":"04e10001-01be0502"},{"n":380,"s":4,"en":"Kevin","es":"Porcinio","sp":"Cerdo","p":"Atlético","g":"M","b":"4/26","c":"bidoink","v":1,"h":"Jugar","st":["Deportivo","Sencillo"],"co":["Black","Red"],"i":"04870001-01bf0502"},{"n":381,"s":4,"en":"Gloria","es":"Jarrea","sp":"Pato","p":"Presumida","g":"F","b":"8/12","c":"picodoro","v":1,"h":"Moda","st":["Glamuroso","Elegante"],"co":["Black","Gray"],"i":"03160001-01c00502"},{"n":382,"s":4,"en":"Lobo","es":"Lupo","sp":"Lobo","p":"Gruñón","g":"M","b":"11/5","c":"auuuh","v":1,"h":"Leer y aprender","st":["Moderno","Deportivo"],"co":["Black","Beige"],"i":"050c0001-01c10502"},{"n":383,"s":4,"en":"Hippeux","es":"Hipóleo","sp":"Hipopótamo","p":"Esnob","g":"M","b":"10/15","c":"chofchof","v":1,"h":"Leer y aprender","st":["Elegante","Glamuroso"],"co":["Brown","Green"],"i":"03990001-01c20502"},{"n":384,"s":4,"en":"Margie","es":"Rita","sp":"Elefante","p":"Normal","g":"F","b":"1/28","c":"flaqui","v":1,"h":"Leer y aprender","st":["Elegante","Cuqui"],"co":["Pink","Red"],"i":"03270001-01c30502"},{"n":385,"s":4,"en":"Lucky","es":"Pupas","sp":"Perro","p":"Perezoso","g":"M","b":"11/4","c":"guuuuAY","v":1,"h":"Jugar","st":["Sencillo","Sencillo"],"co":["Beige","White"],"i":"02ec0001-01c40502"},{"n":386,"s":4,"en":"Rosie","es":"Minina","sp":"Gato","p":"Alegre","g":"F","b":"2/27","c":"miaaau","v":1,"h":"Música","st":["Cuqui","Cuqui"],"co":["Pink","Red"],"i":"025f0001-01c50502"},{"n":387,"s":4,"en":"Rowan","es":"Miguelón","sp":"Tigre","p":"Atlético","g":"M","b":"8/26","c":"turista","v":1,"h":"Deporte","st":["Deportivo","Sencillo"],"co":["Aqua","Gray"],"i":"04fb0001-01c60502"},{"n":388,"s":4,"en":"Maelle","es":"Patidifú","sp":"Pato","p":"Presumida","g":"F","b":"4/8","c":"perla","v":1,"h":"Moda","st":["Moderno","Sencillo"],"co":["Pink","White"],"i":"030a0001-01c70502"},{"n":389,"s":4,"en":"Bruce","es":"Aristo","sp":"Ciervo","p":"Gruñón","g":"M","b":"5/26","c":"aquesí","v":1,"h":"Naturaleza","st":["Moderno","Sencillo"],"co":["Black","Red"],"i":"02d90001-01c80502"},{"n":390,"s":4,"en":"O'Hare","es":"Ernesto","sp":"Conejo","p":"Esnob","g":"M","b":"7/24","c":"tralarí","v":1,"h":"Naturaleza","st":["Deportivo","Moderno"],"co":["Blue","Aqua"],"i":"04a30001-01c90502"},{"n":391,"s":4,"en":"Gayle","es":"Boni","sp":"Cocodrilo","p":"Normal","g":"F","b":"5/17","c":"corazón","v":1,"h":"Naturaleza","st":["Cuqui","Cuqui"],"co":["Pink","White"],"i":"02ca0001-01ca0502"},{"n":392,"s":4,"en":"Cranston","es":"Carmelo","sp":"Avestruz","p":"Perezoso","g":"M","b":"9/23","c":"gruqui","v":1,"h":"Naturaleza","st":["Sencillo","Moderno"],"co":["Beige","Brown"],"i":"043c0001-01cb0502"},{"n":393,"s":4,"en":"Frobert","es":"Croaldo","sp":"Rana","p":"Atlético","g":"M","b":"2/8","c":"anquitas","v":1,"h":"Deporte","st":["Deportivo","Sencillo"],"co":["Blue","Colorful"],"i":"033a0001-01cc0502"},{"n":394,"s":4,"en":"Grizzly","es":"Gruñón","sp":"Oso","p":"Gruñón","g":"M","b":"7/31","c":"tostón","v":1,"h":"Leer y aprender","st":["Moderno","Sencillo"],"co":["Red","Black"],"i":"021d0001-01cd0502"},{"n":395,"s":4,"en":"Cally","es":"Almendra","sp":"Ardilla","p":"Normal","g":"F","b":"9/4","c":"macadamia","v":1,"h":"Naturaleza","st":["Cuqui","Elegante"],"co":["Red","Green"],"i":"04e80001-01ce0502"},{"n":396,"s":4,"en":"Simon","es":"Simón","sp":"Mono","p":"Perezoso","g":"M","b":"1/19","c":"chimpa","v":1,"h":"Jugar","st":["Sencillo","Deportivo"],"co":["Red","Colorful"],"i":"03fb0001-01cf0502"},{"n":397,"s":4,"en":"Iggly","es":"Bobo","sp":"Pingüino","p":"Atlético","g":"M","b":"11/2","c":"chirpi","v":1,"h":"Deporte","st":["Deportivo","Sencillo"],"co":["Red","Blue"],"i":"046a0001-01d00502"},{"n":398,"s":4,"en":"Angus","es":"Aliste","sp":"Toro","p":"Gruñón","g":"M","b":"4/30","c":"cuernos","v":1,"h":"Deporte","st":["Moderno","Moderno"],"co":["Red","Black"],"i":"024a0001-01d10502"},{"n":399,"s":4,"en":"Twiggy","es":"Tití","sp":"Pájaro","p":"Alegre","g":"F","b":"7/13","c":"tirití","v":1,"h":"Moda","st":["Sencillo","Cuqui"],"co":["Pink","Blue"],"i":"02300001-01d20502"},{"n":400,"s":4,"en":"Robin","es":"Aria","sp":"Pájaro","p":"Presumida","g":"F","b":"12/4","c":"picatoste","v":1,"h":"Moda","st":["Elegante","Moderno"],"co":["Aqua","Purple"],"i":"022e0001-01d30502"}];
+
+const EMOJI = {"Cocodrilo":"🐊","Oso hormiguero":"🐜","Oso":"🐻","Osezno":"🧸","Pájaro":"🐦","Toro":"🐂","Gato":"🐱","Gallina":"🐔","Vaca":"🐄","Ciervo":"🦌","Perro":"🐶","Pato":"🦆","Águila":"🦅","Elefante":"🐘","Rana":"🐸","Cabra":"🐐","Gorila":"🦍","Hámster":"🐹","Hipopótamo":"🦛","Caballo":"🐴","Canguro":"🦘","Koala":"🐨","León":"🦁","Mono":"🐵","Ratón":"🐭","Pulpo":"🐙","Avestruz":"🪶","Pingüino":"🐧","Cerdo":"🐷","Conejo":"🐰","Rinoceronte":"🦏","Oveja":"🐑","Ardilla":"🐿️","Tigre":"🐯","Lobo":"🐺","Mapache":"🦝","Erizo":"🦔","Kappa":"🥒","Topo":"⛏️","Jabalí":"🐗","Nutria":"🦦","Zorro":"🦊","Camello":"🐪","Tapir":"🌙","Tortuga":"🐢","Alpaca":"🦙","Mofeta":"🦨","Ajolote":"🦎","Camaleón":"🦎","Castor":"🦫","Calabaza":"🎃","Búho":"🦉","Pelícano":"📮","Perezoso":"🦥","Morsa":"🦭","Pavo":"🦃","Reno":"🦌","Paloma":"🕊️","Pantera":"🐆","León marino":"🦭","Jirafa":"🦒","Pavo real":"🦚","Gaviota":"🕊️"};
+const PERS = ["Perezoso","Atlético","Gruñón","Esnob","Normal","Alegre","Presumida","Dulce"];
+const MONTHS = ["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
+const SERIES_COLOR = {1:"var(--s1)",2:"var(--s2)",3:"var(--s3)",4:"var(--s4)"};
+const MAX_ISLAND = 10;
+const IMG_BASES = ["https://raw.githubusercontent.com/N3evin/AmiiboAPI/master/images/", "https://cdn.jsdelivr.net/gh/N3evin/AmiiboAPI@master/images/"];
+const imgTag = c => `<img src="${IMG_BASES[0]}icon_${c.i}.png" alt="Tarjeta de ${esc(c.es)}" loading="lazy" decoding="async" data-i="${c.i}" data-emoji="${EMOJI[c.sp] || "❔"}">`;
+document.addEventListener("error", e => {
+  const img = e.target;
+  if (!(img instanceof HTMLImageElement) || !img.dataset.i) return;
+  const next = IMG_BASES.findIndex(b => img.src.startsWith(b)) + 1;
+  if (next > 0 && next < IMG_BASES.length) { img.src = IMG_BASES[next] + "icon_" + img.dataset.i + ".png"; return; }
+  const span = document.createElement("span"); span.className = "fallback"; span.textContent = img.dataset.emoji; img.replaceWith(span);
+}, true);
+const COLORS = {Aqua:["Turquesa","#3fc1c9"],Beige:["Beis","#d8c19c"],Black:["Negro","#222222"],Blue:["Azul","#3a6fd8"],Brown:["Marrón","#8a5a35"],Colorful:["Multicolor","conic-gradient(#e94b3c,#f2c23a,#4caf50,#3a6fd8,#9b59b6,#e94b3c)"],Gray:["Gris","#9a9a9a"],Green:["Verde","#4caf50"],Orange:["Naranja","#f08a2c"],Pink:["Rosa","#f28fb1"],Purple:["Morado","#8e5cc8"],Red:["Rojo","#d9403a"],White:["Blanco","#ffffff"],Yellow:["Amarillo","#f2cf3a"]};
+const photoUrl = c => "https://www.google.com/search?tbm=isch&q=" + encodeURIComponent(c.en.replace(" - ", " ") + " animal crossing amiibo card " + String(c.n).padStart(3, "0"));
+const wikiUrl = c => "https://nookipedia.com/w/index.php?go=Go&search=" + encodeURIComponent(c.en.split(" - ")[0].replace("DJ KK", "K.K. Slider").replace("Pave", "Pavé").replace("Labelle", "Label"));
+const BY_NUM = new Map(CARDS.map(c => [c.n, c]));
+const coll = new Intl.Collator("es", { sensitivity: "base" });
+const norm = s => (s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+CARDS.forEach(c => { c.key = norm([c.es, c.en, c.sp, c.p || "especial", c.c || "", c.h || "", (c.st || []).join(" "), "#" + String(c.n).padStart(3, "0")].join(" ")); });
+
+const ICON = {
+  star: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.8l2.8 5.9 6.4.8-4.7 4.4 1.2 6.4L12 17.2l-5.7 3.1 1.2-6.4L2.8 9.5l6.4-.8z"/></svg>',
+  home: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3 2.5 11h2.7v9h5.3v-5.5h3v5.5h5.3v-9h2.7z"/></svg>',
+  cam: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M4 7.5h3.2L9 5h6l1.8 2.5H20v11.5H4z"/><circle cx="12" cy="13" r="3.4"/></svg>'
+};
+
+// ---------- state ----------
+const state = {
+  tab: "all", q: "", sort: "species", series: 0, kind: "all", pers: "", species: "",
+  favs: new Set(), island: [], showFilters: false
+};
+const LS_KEY = "acnh-amiibo-v1";
+try {
+  const saved = JSON.parse(localStorage.getItem(LS_KEY) || "null");
+  if (saved) { state.favs = new Set(saved.favs || []); state.island = (saved.island || []).filter(n => BY_NUM.get(n)?.v); }
+  const ui = JSON.parse(localStorage.getItem(LS_KEY + "-ui") || "null");
+  if (ui) { state.sort = ui.sort || state.sort; state.series = ui.series || 0; }
+} catch (e) {}
+
+function saveLocal() {
+  try { localStorage.setItem(LS_KEY, JSON.stringify({ favs: [...state.favs], island: state.island })); } catch (e) {}
+}
+function saveUi() {
+  try { localStorage.setItem(LS_KEY + "-ui", JSON.stringify({ sort: state.sort, series: state.series })); } catch (e) {}
+}
+
+// ---------- cloud sync (per-viewer private doc) ----------
+let docRef = null, writing = false, pendingWrite = false, writeTimer = null, lastWritten = "";
+const syncEl = document.getElementById("sync");
+function payload() { return { favs: [...state.favs].sort((a, b) => a - b), island: state.island }; }
+function scheduleWrite() {
+  saveLocal();
+  if (!docRef) return;
+  clearTimeout(writeTimer);
+  writeTimer = setTimeout(flush, 700);
+}
+async function flush() {
+  if (!docRef) return;
+  if (writing) { pendingWrite = true; return; }
+  const body = payload();
+  const sig = JSON.stringify(body);
+  if (sig === lastWritten) return;
+  writing = true;
+  try { await docRef.set(body); lastWritten = sig; syncEl.textContent = "Guardado en tu cuenta. Lo verás igual en el móvil y en el ordenador."; }
+  catch (e) { syncEl.textContent = "No se pudo guardar en tu cuenta; los cambios quedan en este navegador."; }
+  writing = false;
+  if (pendingWrite) { pendingWrite = false; flush(); }
+}
+(async () => {
+  syncEl.textContent = "Tus favoritos y tu isla se guardan en este navegador.";
+  if (!window.claude?.use) return;
+  try {
+    const [db, user] = await Promise.all([claude.use("db"), claude.use("user")]);
+    if (!db || !user) return;
+    const uid = await user.id();
+    if (!uid) return;
+    docRef = db.doc("data/users/" + uid + "/album");
+    let first = true;
+    docRef.onSnapshot(snap => {
+      if (snap.exists) {
+        const d = snap.data();
+        const sig = JSON.stringify({ favs: d.favs || [], island: d.island || [] });
+        lastWritten = sig;
+        if (!snap.metadata.hasPendingWrites) {
+          state.favs = new Set(d.favs || []);
+          state.island = (d.island || []).filter(n => BY_NUM.get(n)?.v);
+          saveLocal();
+          render();
+        }
+        syncEl.textContent = "Guardado en tu cuenta. Lo verás igual en el móvil y en el ordenador.";
+      } else if (first && (state.favs.size || state.island.length)) {
+        flush();
+      } else {
+        syncEl.textContent = "Tus favoritos y tu isla se guardarán en tu cuenta.";
+      }
+      first = false;
+    }, () => { syncEl.textContent = "Sin conexión con tu cuenta; los cambios quedan en este navegador."; });
+  } catch (e) {}
+})();
+
+// ---------- actions ----------
+const toastEl = document.getElementById("toast");
+let toastT;
+function toast(msg) { toastEl.textContent = msg; toastEl.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => toastEl.hidden = true, 2200); }
+
+function toggleFav(n) {
+  const c = BY_NUM.get(n);
+  if (state.favs.has(n)) { state.favs.delete(n); toast(c.es + " ya no es favorito"); }
+  else { state.favs.add(n); toast(c.es + " añadido a favoritos"); }
+  scheduleWrite(); render();
+}
+function toggleIsland(n) {
+  const c = BY_NUM.get(n);
+  if (!c.v) return;
+  const i = state.island.indexOf(n);
+  if (i >= 0) { state.island.splice(i, 1); toast(c.es + " se ha mudado de tu isla"); }
+  else if (state.island.length >= MAX_ISLAND) { toast("Tu isla ya tiene 10 vecinos. Quita uno primero."); return; }
+  else { state.island.push(n); toast(c.es + " vive ahora en tu isla"); }
+  scheduleWrite(); render();
+}
+
+// ---------- rendering ----------
+const esc = s => String(s).replace(/[&<>"']/g, m => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m]));
+const pad = n => "#" + String(n).padStart(3, "0");
+const fmtBday = b => { if (!b) return "—"; const [m, d] = b.split("/").map(Number); return d + " de " + MONTHS[m - 1]; };
+
+function cardHTML(c) {
+  const fav = state.favs.has(c.n), home = state.island.includes(c.n);
+  return `<div class="card" style="--sc:${SERIES_COLOR[c.s]}" data-open="${c.n}" role="button" tabindex="0" aria-label="${esc(c.es)}, tarjeta ${c.n}">
+    <div class="band"></div>
+    <div class="face">${imgTag(c)}</div>
+    ${home ? `<span class="home" title="Vive en tu isla">${ICON.home}</span>` : ""}
+    <button class="fav" data-fav="${c.n}" aria-pressed="${fav}" aria-label="${fav ? "Quitar de" : "Añadir a"} favoritos">${ICON.star}</button>
+    <div class="meta">
+      <span class="num">${pad(c.n)} · S${c.s}</span>
+      <span class="nm">${esc(c.es)}</span>
+      ${c.es !== c.en ? `<span class="en">${esc(c.en)}</span>` : ""}
+      <span class="tag ${c.v ? "" : "sp"}">${c.v ? esc(c.p) : "Especial"}</span>
+    </div>
+  </div>`;
+}
+
+function filtered(base) {
+  const q = norm(state.q).trim();
+  const terms = q ? q.split(/\s+/) : [];
+  return base.filter(c =>
+    (!state.series || c.s === state.series) &&
+    (state.kind === "all" || (state.kind === "v" ? c.v : !c.v)) &&
+    (!state.pers || c.p === state.pers) &&
+    (!state.species || c.sp === state.species) &&
+    terms.every(t => c.key.includes(t) || (/^\d+$/.test(t) && c.n === Number(t)))
+  );
+}
+
+function renderFilters(list) {
+  const f = document.getElementById("filters");
+  const s = [0, 1, 2, 3, 4].map(n => `<button class="chip" data-series="${n}" aria-pressed="${state.series === n}">${n ? `<span class="dot" style="background:${SERIES_COLOR[n]}"></span>Serie ${n}` : "Todas las series"}</button>`).join("");
+  const k = [["all", "Vecinos y especiales"], ["v", "Solo vecinos"], ["s", "Solo especiales"]].map(([v, l]) => `<button class="chip" data-kind="${v}" aria-pressed="${state.kind === v}">${l}</button>`).join("");
+  const p = `<select id="pers" aria-label="Personalidad"><option value="">Personalidad</option>${PERS.map(x => `<option ${state.pers === x ? "selected" : ""}>${x}</option>`).join("")}</select>`;
+  const o = `<select id="sort" aria-label="Ordenar">${[["species","Por especie"],["number","Por nº de tarjeta"],["name","Por nombre"]].map(([v,l]) => `<option value="${v}" ${state.sort === v ? "selected" : ""}>${l}</option>`).join("")}</select>`;
+  f.innerHTML = s + '<span class="sep"></span>' + k + '<span class="sep"></span>' + p + o;
+  f.classList.toggle("open", state.showFilters);
+  const n = (state.series ? 1 : 0) + (state.kind !== "all" ? 1 : 0) + (state.pers ? 1 : 0);
+  const fc = document.getElementById("fcount"); fc.textContent = n; fc.hidden = !n;
+  document.getElementById("ftoggle").setAttribute("aria-expanded", String(state.showFilters));
+  // species jump strip, computed without the species filter so you can switch
+  const saved = state.species; state.species = "";
+  const pool = filtered(list); state.species = saved;
+  const counts = {};
+  pool.forEach(c => counts[c.sp] = (counts[c.sp] || 0) + 1);
+  const sps = Object.keys(counts).sort(coll.compare);
+  if (state.species && !counts[state.species]) { counts[state.species] = 0; sps.push(state.species); sps.sort(coll.compare); }
+  const sel = document.getElementById("species");
+  sel.innerHTML = `<option value="">Todas las especies (${sps.length})</option>` +
+    sps.map(sp => `<option value="${esc(sp)}" ${state.species === sp ? "selected" : ""}>${EMOJI[sp] || ""}  ${esc(sp)} · ${counts[sp]}</option>`).join("");
+  sel.classList.toggle("active", !!state.species);
+}
+
+function renderList(list, emptyMsg) {
+  const main = document.getElementById("main");
+  const items = filtered(list);
+  if (!items.length) { main.innerHTML = `<div class="empty">${emptyMsg}</div>`; return; }
+  let html = `<p class="result-note">${items.length} ${items.length === 1 ? "tarjeta" : "tarjetas"}</p>`;
+  if (state.sort === "species") {
+    const groups = {};
+    items.forEach(c => (groups[c.sp] ||= []).push(c));
+    Object.keys(groups).sort(coll.compare).forEach(sp => {
+      const g = groups[sp].sort((a, b) => a.n - b.n);
+      html += `<section class="group" id="g-${encodeURIComponent(sp)}"><h2><span class="em" aria-hidden="true">${EMOJI[sp] || ""}</span>${esc(sp)}<span class="n">${g.length}</span></h2><div class="grid">${g.map(cardHTML).join("")}</div></section>`;
+    });
+  } else {
+    const s = [...items].sort(state.sort === "name" ? (a, b) => coll.compare(a.es, b.es) : (a, b) => a.n - b.n);
+    html += `<div class="grid">${s.map(cardHTML).join("")}</div>`;
+  }
+  main.innerHTML = html;
+}
+
+function renderIsland() {
+  const main = document.getElementById("main");
+  const res = state.island.map(n => BY_NUM.get(n));
+  let plots = res.map(c => `<div class="plot" style="--sc:${SERIES_COLOR[c.s]}">
+      <span class="thumb">${imgTag(c)}</span>
+      <div class="info">
+        <button class="nm" data-open="${c.n}">${esc(c.es)}</button>
+        <small>${esc(c.sp)} · ${esc(c.p)}</small>
+        <small>${pad(c.n)} · Serie ${c.s}</small>
+        <button class="rm" data-island="${c.n}">Mudar</button>
+      </div></div>`).join("");
+  for (let i = res.length; i < MAX_ISLAND; i++) plots += `<div class="plot free"><b>Parcela ${i + 1}</b>Libre</div>`;
+
+  const pc = {}; res.forEach(c => pc[c.p] = (pc[c.p] || 0) + 1);
+  const max = Math.max(1, ...Object.values(pc));
+  const mix = PERS.map(p => `<div class="row ${pc[p] ? "" : "zero"}"><span>${p}</span><span class="track"><i style="width:${(pc[p] || 0) / max * 100}%"></i></span><b>${pc[p] || 0}</b></div>`).join("");
+
+  const today = new Date(); const t0 = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  const bd = res.filter(c => c.b).map(c => {
+    const [m, d] = c.b.split("/").map(Number);
+    let dt = new Date(t0.getFullYear(), m - 1, d); if (dt < t0) dt = new Date(t0.getFullYear() + 1, m - 1, d);
+    return { c, days: Math.round((dt - t0) / 864e5) };
+  }).sort((a, b) => a.days - b.days);
+  const bdl = bd.length ? `<ul class="bdays">${bd.map(({ c, days }) => `<li><span>${EMOJI[c.sp]} ${esc(c.es)} · ${fmtBday(c.b)}</span><span>${days === 0 ? "¡hoy!" : days === 1 ? "mañana" : "en " + days + " días"}</span></li>`).join("")}</ul>` : `<p class="result-note" style="margin:0">Añade vecinos para ver sus cumpleaños.</p>`;
+
+  main.innerHTML = `<div class="island-head"><h2>Mi isla</h2><p>${res.length} de ${MAX_ISLAND} parcelas ocupadas. Añade vecinos desde el catálogo con el botón «Vive en mi isla».</p></div>
+    <div class="plots">${plots}</div>
+    <div class="island-stats">
+      <div class="panel"><h3>Personalidades</h3><div class="mix">${mix}</div></div>
+      <div class="panel"><h3>Próximos cumpleaños</h3>${bdl}</div>
+    </div>`;
+}
+
+function renderTally() {
+  const v = CARDS.filter(c => c.v).length;
+  document.getElementById("tally").innerHTML = `<span>400 tarjetas</span><span>${v} vecinos</span><span>${400 - v} especiales</span>`;
+  document.getElementById("c-fav").textContent = state.favs.size;
+  document.getElementById("c-isl").textContent = state.island.length + "/10";
+}
+
+function render() {
+  renderTally();
+  document.querySelectorAll(".tabs button").forEach(b => b.setAttribute("aria-selected", String(b.dataset.tab === state.tab)));
+  document.getElementById("catalog-controls").hidden = state.tab === "isl";
+  if (state.tab === "isl") { renderIsland(); }
+  else {
+    const base = state.tab === "fav" ? CARDS.filter(c => state.favs.has(c.n)) : CARDS;
+    renderFilters(base);
+    renderList(base, state.tab === "fav" && !state.favs.size
+      ? "<strong>Aún no tienes favoritos</strong>Toca la estrella de cualquier tarjeta para guardarla aquí."
+      : "<strong>Ninguna tarjeta coincide</strong>Prueba con otro nombre o quita algún filtro.");
+  }
+  if (openNum) renderSheet(openNum);
+}
+
+// ---------- detail sheet ----------
+let openNum = null, lastFocus = null;
+const sheet = document.getElementById("sheet"), scrim = document.getElementById("scrim");
+function renderSheet(n) {
+  const c = BY_NUM.get(n);
+  const fav = state.favs.has(n), home = state.island.includes(n), full = state.island.length >= MAX_ISLAND;
+  const rows = [["Especie", c.sp], ["Tarjeta", pad(c.n) + " · Serie " + c.s]];
+  if (c.v) rows.push(["Personalidad", c.p], ["Sexo", c.g === "M" ? "Macho" : "Hembra"], ["Cumpleaños", fmtBday(c.b)], ["Muletilla", "«" + c.c + "»"], ["Afición", c.h], ["Estilo", c.st.join(" · ")]);
+  else rows.push(["Tipo", "Personaje especial"], ["Cumpleaños", fmtBday(c.b)]);
+  sheet.innerHTML = `<button class="close" data-close aria-label="Cerrar">×</button>
+    <div class="hd" style="--sc:${SERIES_COLOR[c.s]}"><div class="bigcard">${imgTag(c).replace(' loading="lazy"', "")}</div>
+      <div><h3 id="sh-name">${esc(c.es)}</h3>${c.en !== c.es ? `<div class="sub">${esc(c.en)}</div>` : ""}<div class="sub">${esc(c.sp)}${c.v ? " · " + esc(c.p) : ""}</div></div></div>
+    <a class="photo-alt" data-link href="${wikiUrl(c)}" target="_blank" rel="noopener">Ficha completa en Nookipedia ↗</a>
+    <dl>${rows.map(([k, v]) => `<dt>${k}</dt><dd>${esc(v)}</dd>`).join("")}${c.co ? `<dt>Colores</dt><dd class="sw">${c.co.map(k => `<span><i style="background:${COLORS[k][1]}"></i>${COLORS[k][0]}</span>`).join("")}</dd>` : ""}</dl>
+    <div class="acts">
+      <button class="btn ${fav ? "on-fav" : ""}" data-fav="${n}">${ICON.star}${fav ? "Favorito" : "Marcar favorito"}</button>
+      <button class="btn ${home ? "on-home" : ""}" data-island="${n}" ${!c.v || (full && !home) ? "disabled" : ""}>${ICON.home}${home ? "Vive en mi isla" : "Añadir a mi isla"}</button>
+    </div>
+    ${!c.v ? `<p class="note">Los personajes especiales no pueden mudarse a la isla.</p>` : full && !home ? `<p class="note">Tu isla ya tiene 10 vecinos.</p>` : home ? `<p class="note">Toca de nuevo para que se mude.</p>` : ""}`;
+}
+function openSheet(n) {
+  lastFocus = document.activeElement; openNum = n; renderSheet(n);
+  sheet.hidden = false; scrim.hidden = false; sheet.querySelector(".close").focus();
+}
+function closeSheet() { openNum = null; sheet.hidden = true; scrim.hidden = true; lastFocus?.focus?.(); }
+
+// ---------- events ----------
+document.addEventListener("click", e => {
+  if (e.target.closest("[data-link]")) return;
+  const t = e.target.closest("[data-fav],[data-island],[data-open],[data-close],[data-series],[data-kind],[data-sp],[data-tab]");
+  if (!t) { if (e.target === scrim) closeSheet(); return; }
+  if (t.dataset.fav) { e.stopPropagation(); toggleFav(+t.dataset.fav); }
+  else if (t.dataset.island) toggleIsland(+t.dataset.island);
+  else if (t.dataset.open) openSheet(+t.dataset.open);
+  else if ("close" in t.dataset) closeSheet();
+  else if (t.dataset.series !== undefined) { state.series = +t.dataset.series; saveUi(); render(); }
+  else if (t.dataset.kind) { state.kind = t.dataset.kind; render(); }
+  else if (t.dataset.sp !== undefined) {
+    state.species = state.species === t.dataset.sp ? "" : t.dataset.sp; render(); window.scrollTo({ top: 0, behavior: "smooth" });
+    document.querySelector(`#jump [data-sp="${CSS.escape(state.species)}"]`)?.scrollIntoView({ inline: "center", block: "nearest" });
+  }
+  else if (t.dataset.tab) { state.tab = t.dataset.tab; state.species = ""; render(); window.scrollTo({ top: 0 }); }
+});
+scrim.addEventListener("click", closeSheet);
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape" && openNum) closeSheet();
+  if ((e.key === "Enter" || e.key === " ") && e.target.matches?.(".card")) { e.preventDefault(); openSheet(+e.target.dataset.open); }
+});
+document.getElementById("q").addEventListener("input", e => { state.q = e.target.value; render(); });
+document.getElementById("ftoggle").addEventListener("click", () => { state.showFilters = !state.showFilters; render(); });
+document.addEventListener("change", e => {
+  if (e.target.id === "pers") { state.pers = e.target.value; render(); }
+  if (e.target.id === "species") { state.species = e.target.value; render(); window.scrollTo({ top: 0 }); }
+  if (e.target.id === "sort") { state.sort = e.target.value; saveUi(); render(); }
+});
+
+render();
+</script>
+
+</body>
+</html>
