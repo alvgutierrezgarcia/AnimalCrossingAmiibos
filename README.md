@@ -15,8 +15,9 @@ también se guardan en Supabase y se ven igual en el móvil y en el ordenador.
 ## Supabase
 
 1. Ejecuta [`supabase/schema.sql`](supabase/schema.sql) en el editor SQL del proyecto.
-2. En *Authentication → Emails → Magic Link*, incluye `{{ .Token }}` en la plantilla para
-   que el email lleve el código.
+2. Configura un SMTP propio (*Authentication → Emails → Set up SMTP*): sin él, Supabase no
+   deja editar las plantillas. Después pega [`supabase/email-codigo.html`](supabase/email-codigo.html)
+   en las plantillas «Magic Link» y «Confirm signup», que son las que llevan el código (`{{ .Token }}`).
 3. Tras entrar por primera vez, desactiva el registro de usuarios nuevos en
    *Authentication → Sign In / Providers*.
 
