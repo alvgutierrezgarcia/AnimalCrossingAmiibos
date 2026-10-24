@@ -8,7 +8,20 @@ marcar favoritos y elegir los 10 vecinos de tu isla. Pensada sobre todo para el 
 No hay paso de build: todo está en `index.html`. Para verla en local, abre el archivo en el
 navegador o sirve la carpeta con cualquier servidor estático. Se despliega en Vercel tal cual.
 
-Los favoritos y la isla se guardan en el `localStorage` del navegador.
+Los favoritos y la isla se guardan en el `localStorage` del navegador. Si inicias sesión
+(«Sincronizar entre dispositivos», al pie de la página, con un código que llega por email),
+también se guardan en Supabase y se ven igual en el móvil y en el ordenador.
+
+## Supabase
+
+1. Ejecuta [`supabase/schema.sql`](supabase/schema.sql) en el editor SQL del proyecto.
+2. En *Authentication → Emails → Magic Link*, incluye `{{ .Token }}` en la plantilla para
+   que el email lleve el código.
+3. Tras entrar por primera vez, desactiva el registro de usuarios nuevos en
+   *Authentication → Sign In / Providers*.
+
+La URL del proyecto y la clave pública están en `index.html` (`SB_URL`, `SB_KEY`). Esa clave
+es pública por diseño: lo que protege los datos es la RLS de la tabla.
 
 ## Datos
 

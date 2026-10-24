@@ -26,6 +26,7 @@ Todo está en `index.html`:
      `EMOJI` por especie, `PERS`, `COLORS`, constantes (`MAX_ISLAND = 10`).
    - Fotos: `IMG_BASES` + `imgTag()` + un listener global de `error` que hace el fallback.
    - `state` y persistencia en localStorage.
+   - Sincronización con Supabase: `scheduleWrite`, `pull`, `push`, `renderSync` y el acceso en el pie.
    - Acciones: `toggleFav`, `toggleIsland`.
    - Render: todo se repinta con `render()` → `renderFilters`/`renderList` o `renderIsland`, más `renderSheet`.
    - Eventos: delegación en `document` con atributos `data-fav`, `data-island`, `data-open`,
@@ -55,12 +56,25 @@ npm `animal-crossing` (Norviah), cruzados por número de tarjeta.
   jsDelivr (`cdn.jsdelivr.net/gh/N3evin/AmiiboAPI@master/images/`) y, como último recurso,
   el emoji de la especie.
 - Mi isla admite 10 vecinos como máximo; los especiales (`v: 0`) no pueden añadirse.
-- localStorage: `"acnh-amiibo-v1"` → `{ favs: [n], island: [n] }`; `"acnh-amiibo-v1-ui"` →
+- localStorage: `"acnh-amiibo-v1"` → `{ favs: [n], island: [n], t, u }` (`t`: ms del último
+  cambio; `u`: cuenta con la que se sincronizó este navegador); `"acnh-amiibo-v1-ui"` →
   `{ sort, series }`. No cambies estas claves ni su forma sin migrar los datos guardados.
 
+## Supabase
+- Proyecto propio solo para el álbum (plan gratuito: se pausa tras una semana sin uso; la web
+  sigue funcionando con localStorage). Acceso con código de un solo uso por email
+  (`signInWithOtp` + `verifyOtp`), sin contraseñas ni redirecciones.
+- Tabla `amiibo_album` (una fila por usuario, RLS), definida en `supabase/schema.sql`. Si la
+  cambias, actualiza ese archivo: el SQL se ejecuta a mano en el editor de Supabase.
+- supabase-js v2 se carga desde jsDelivr con versión exacta fijada (`SB_LIB`), sin bloquear el
+  primer render. Si no carga, la web funciona solo en local.
+- Sincronización: localStorage es la fuente inmediata; cada cambio se sube a los 700 ms y al
+  abrir o volver a la pestaña se lee la remota. Gana el cambio más reciente (`t` frente a
+  `updated_at`). La primera vez que un navegador se sincroniza con una cuenta se combinan
+  ambos lados.
+- Solo la clave publishable va en el código. Nunca la `service_role`/secret.
+- Para probar en local con localStorage hace falta servir la carpeta (`.claude/launch.json`
+  usa `py -m http.server 8765`); abierta como archivo, el panel del navegador no tiene localStorage.
+
 ## Hoja de ruta
-1. README en UTF-8 (estaba en UTF-16 por crearlo con `echo >>` en PowerShell).
-2. Quitar el código muerto de la versión artefacto de Claude (`window.claude`, `claude.use("db")`).
-3. Sincronizar favoritos e isla entre dispositivos con Supabase, manteniendo localStorage
-   como respaldo sin conexión.
-4. Opcional: separar los datos a `cards.json` y el JS a su propio archivo, sin añadir build.
+- Opcional: separar los datos a `cards.json` y el JS a su propio archivo, sin añadir build.
