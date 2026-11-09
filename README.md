@@ -1,7 +1,8 @@
 # Álbum amiibo ACNH
 
-Web estática para consultar las 400 tarjetas amiibo de Animal Crossing (series 1–4),
-marcar favoritos y elegir los 10 vecinos de tu isla. Pensada sobre todo para el móvil.
+Web estática para consultar las 504 tarjetas amiibo de Animal Crossing (series 1–5,
+Welcome amiibo y Sanrio), marcar favoritos y elegir los 10 vecinos de tu isla. Están los 413
+vecinos del juego. Pensada sobre todo para el móvil.
 
 ## Uso
 

@@ -1,7 +1,8 @@
 # Álbum amiibo ACNH
 
-Proyecto personal y privado: web estática para consultar las 400 tarjetas amiibo de
-Animal Crossing (series 1–4) y elegir los vecinos de la isla. Se despliega en Vercel desde
+Proyecto personal y privado: web estática para consultar las 504 tarjetas amiibo de
+Animal Crossing (series 1–5, Welcome amiibo y Sanrio; están los 413 vecinos del juego) y
+elegir los vecinos de la isla. Se despliega en Vercel desde
 github.com/alvgutierrezgarcia/AnimalCrossingAmiibos, **sin paso de build**: lo que hay en el
 repo es lo que se sirve. No añadas bundlers, npm ni frameworks.
 
@@ -23,7 +24,8 @@ Todo está en `index.html`:
    En móvil las pestañas pasan a una barra fija abajo.
 3. `<script>`, por secciones (`// ---------- … ----------`):
    - Datos: `const CARDS = [...]` (una sola línea muy larga; no la leas entera ni la reformatees),
-     `EMOJI` por especie, `PERS`, `COLORS`, constantes (`MAX_ISLAND = 10`).
+     `EMOJI` por especie, `PERS`, `COLORS`, `SERIES`/`SERIES_COLOR`, `cardNo()` (número que se
+     muestra), constantes (`MAX_ISLAND = 10`).
    - Fotos: `IMG_BASES` + `imgTag()` + un listener global de `error` que hace el fallback.
    - `state` y persistencia en localStorage.
    - Sincronización con Supabase: `scheduleWrite`, `pull`, `push`, `renderSync` y el acceso en el pie.
@@ -35,8 +37,8 @@ Todo está en `index.html`:
 ## Modelo de datos (cada elemento de `CARDS`)
 | campo | significado |
 |---|---|
-| `n` | nº de tarjeta (1–400), clave principal |
-| `s` | serie (1–4) |
+| `n` | nº de tarjeta, clave principal: 1–448 (series 1–5, número impreso), 501–550 (Welcome amiibo, «WA 01–50») y 601–606 (Sanrio, «Sanrio 1–6») |
+| `s` | colección: 1–5 series, 6 Welcome amiibo, 7 Sanrio (nombres en `SERIES`, color `--s1`…`--s7`) |
 | `en` / `es` | nombre en inglés / español |
 | `sp` | especie en español |
 | `v` | 1 vecino, 0 personaje especial |
@@ -47,8 +49,13 @@ Todo está en `index.html`:
 | `st` · `co` | estilos `[]` · colores `[]` (claves en inglés, traducidas con `COLORS`) |
 | `i` | id amiibo `"hhhhhhhh-tttttttt"`, clave de la foto |
 
-`p`, `c`, `h`, `st` y `co` solo existen en vecinos. Fuentes: AmiiboAPI (N3evin) y el paquete
-npm `animal-crossing` (Norviah), cruzados por número de tarjeta.
+`p`, `c`, `h`, `st` y `co` solo existen en vecinos. Fuentes: AmiiboAPI (N3evin,
+`database/amiibo.json`) y el paquete npm `animal-crossing` (Norviah, `Villagers.json` y
+`NPCs.json`), cruzados por nombre en inglés. En los ids de AmiiboAPI, las tarjetas de Animal
+Crossing tienen tipo `01` y serie `05`, y el número de modelo sigue el orden de las tarjetas.
+Los textos en español (especie, personalidad, afición, estilos) usan las mismas palabras que
+las tarjetas que ya hay. Las fotos de Welcome amiibo y Sanrio son apaisadas: se ven más
+pequeñas dentro del marco vertical.
 
 ## Reglas
 - **No descargues ni guardes imágenes de Nintendo en el repo.** Las fotos solo se enlazan:
@@ -62,8 +69,10 @@ npm `animal-crossing` (Norviah), cruzados por número de tarjeta.
 
 ## Supabase
 - Proyecto propio solo para el álbum (plan gratuito: se pausa tras una semana sin uso; la web
-  sigue funcionando con localStorage). Acceso con código de un solo uso por email
-  (`signInWithOtp` + `verifyOtp`), sin contraseñas ni redirecciones.
+  sigue funcionando con localStorage). Iniciar sesión es opcional (pie de la página). Acceso
+  por email sin contraseña (`signInWithOtp`): con el código de la plantilla
+  `supabase/email-codigo.html` (`verifyOtp`) o con el enlace del email, que vuelve a
+  `emailRedirectTo` (Site URL y Redirect URLs configuradas en Supabase). Email por SMTP propio.
 - Tabla `amiibo_album` (una fila por usuario, RLS), definida en `supabase/schema.sql`. Si la
   cambias, actualiza ese archivo: el SQL se ejecuta a mano en el editor de Supabase.
 - supabase-js v2 se carga desde jsDelivr con versión exacta fijada (`SB_LIB`), sin bloquear el

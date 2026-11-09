@@ -3,7 +3,7 @@
 
 create table if not exists public.amiibo_album (
   user_id    uuid primary key default auth.uid() references auth.users on delete cascade,
-  favs       int[] not null default '{}',   -- nº de tarjeta (1–400)
+  favs       int[] not null default '{}',   -- nº de tarjeta (campo n de CARDS)
   island     int[] not null default '{}',   -- nº de tarjeta, 10 como máximo
   updated_at timestamptz not null default now(),  -- lo fija el cliente; gana el más reciente
   constraint island_max check (cardinality(island) <= 10)
