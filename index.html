@@ -25,6 +25,9 @@
   --s2: #2f86c9;
   --s3: #8a59c0;
   --s4: #cf4a77;
+  --s5: #178f8f;
+  --s6: #9a6a3a;
+  --s7: #d6443c;
   --special: #b8860b;
   --font-display: "Baloo 2", "Nunito Sans", ui-rounded, system-ui, sans-serif;
   --font-body: "Nunito Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -35,14 +38,14 @@
   :root:not([data-theme="light"]) {
     --bg: #141a13; --surface: #1d251b; --surface-2: #232c21; --ink: #e6eddf; --muted: #9aa890;
     --line: #34402f; --leaf: #6cc28c; --leaf-soft: #23392a; --star: #f5c53d;
-    --s1: #f0954f; --s2: #5aa7e3; --s3: #ad86de; --s4: #e8739a; --special: #e0b44a;
+    --s1: #f0954f; --s2: #5aa7e3; --s3: #ad86de; --s4: #e8739a; --s5: #4cc4c4; --s6: #cf9a64; --s7: #f07a72; --special: #e0b44a;
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
   --bg: #141a13; --surface: #1d251b; --surface-2: #232c21; --ink: #e6eddf; --muted: #9aa890;
   --line: #34402f; --leaf: #6cc28c; --leaf-soft: #23392a; --star: #f5c53d;
-  --s1: #f0954f; --s2: #5aa7e3; --s3: #ad86de; --s4: #e8739a; --special: #e0b44a;
+  --s1: #f0954f; --s2: #5aa7e3; --s3: #ad86de; --s4: #e8739a; --s5: #4cc4c4; --s6: #cf9a64; --s7: #f07a72; --special: #e0b44a;
   color-scheme: dark;
 }
 * { box-sizing: border-box; }
@@ -246,7 +249,7 @@ main { padding-top: 14px; }
 
 <div class="wrap">
   <header class="top">
-    <h1>Álbum amiibo<small>Animal Crossing · tarjetas de las series 1 a 4</small></h1>
+    <h1>Álbum amiibo<small>Animal Crossing · todas las tarjetas amiibo</small></h1>
     <div class="tally" id="tally"></div>
   </header>
 
@@ -283,7 +286,12 @@ const CARDS = [{"n":1,"s":1,"en":"Isabelle","es":"Canela","sp":"Perro","g":"F","
 const EMOJI = {"Cocodrilo":"🐊","Oso hormiguero":"🐜","Dodo":"🦤","Fantasma":"👻","Manatí":"🦭","Oso":"🐻","Osezno":"🧸","Pájaro":"🐦","Toro":"🐂","Gato":"🐱","Gallina":"🐔","Vaca":"🐄","Ciervo":"🦌","Perro":"🐶","Pato":"🦆","Águila":"🦅","Elefante":"🐘","Rana":"🐸","Cabra":"🐐","Gorila":"🦍","Hámster":"🐹","Hipopótamo":"🦛","Caballo":"🐴","Canguro":"🦘","Koala":"🐨","León":"🦁","Mono":"🐵","Ratón":"🐭","Pulpo":"🐙","Avestruz":"🪶","Pingüino":"🐧","Cerdo":"🐷","Conejo":"🐰","Rinoceronte":"🦏","Oveja":"🐑","Ardilla":"🐿️","Tigre":"🐯","Lobo":"🐺","Mapache":"🦝","Erizo":"🦔","Kappa":"🥒","Topo":"⛏️","Jabalí":"🐗","Nutria":"🦦","Zorro":"🦊","Camello":"🐪","Tapir":"🌙","Tortuga":"🐢","Alpaca":"🦙","Mofeta":"🦨","Ajolote":"🦎","Camaleón":"🦎","Castor":"🦫","Calabaza":"🎃","Búho":"🦉","Pelícano":"📮","Perezoso":"🦥","Morsa":"🦭","Pavo":"🦃","Reno":"🦌","Paloma":"🕊️","Pantera":"🐆","León marino":"🦭","Jirafa":"🦒","Pavo real":"🦚","Gaviota":"🕊️"};
 const PERS = ["Perezoso","Atlético","Gruñón","Esnob","Normal","Alegre","Presumida","Dulce"];
 const MONTHS = ["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
-const SERIES_COLOR = {1:"var(--s1)",2:"var(--s2)",3:"var(--s3)",4:"var(--s4)"};
+const SERIES = {1:"Serie 1",2:"Serie 2",3:"Serie 3",4:"Serie 4",5:"Serie 5",6:"Welcome amiibo",7:"Sanrio"};
+const SERIES_COLOR = {1:"var(--s1)",2:"var(--s2)",3:"var(--s3)",4:"var(--s4)",5:"var(--s5)",6:"var(--s6)",7:"var(--s7)"};
+// series 1–5 show their printed number; Welcome amiibo and Sanrio are stored as 501–550 and 601–606
+const cardNo = c => c.s === 6 ? "WA " + String(c.n - 500).padStart(2, "0") : c.s === 7 ? "Sanrio " + (c.n - 600) : "#" + String(c.n).padStart(3, "0");
+const cardShort = c => c.s > 5 ? cardNo(c) : cardNo(c) + " · S" + c.s;
+const cardLong = c => c.s === 7 ? cardNo(c) : cardNo(c) + " · " + SERIES[c.s];
 const MAX_ISLAND = 10;
 const IMG_BASES = ["https://raw.githubusercontent.com/N3evin/AmiiboAPI/master/images/", "https://cdn.jsdelivr.net/gh/N3evin/AmiiboAPI@master/images/"];
 const imgTag = c => `<img src="${IMG_BASES[0]}icon_${c.i}.png" alt="Tarjeta de ${esc(c.es)}" loading="lazy" decoding="async" data-i="${c.i}" data-emoji="${EMOJI[c.sp] || "❔"}">`;
@@ -300,7 +308,7 @@ const wikiUrl = c => "https://nookipedia.com/w/index.php?go=Go&search=" + encode
 const BY_NUM = new Map(CARDS.map(c => [c.n, c]));
 const coll = new Intl.Collator("es", { sensitivity: "base" });
 const norm = s => (s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
-CARDS.forEach(c => { c.key = norm([c.es, c.en, c.sp, c.p || "especial", c.c || "", c.h || "", (c.st || []).join(" "), "#" + String(c.n).padStart(3, "0")].join(" ")); });
+CARDS.forEach(c => { c.key = norm([c.es, c.en, c.sp, c.p || "especial", c.c || "", c.h || "", (c.st || []).join(" "), cardNo(c), SERIES[c.s]].join(" ")); });
 
 const ICON = {
   star: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.8l2.8 5.9 6.4.8-4.7 4.4 1.2 6.4L12 17.2l-5.7 3.1 1.2-6.4L2.8 9.5l6.4-.8z"/></svg>',
@@ -472,13 +480,13 @@ const fmtBday = b => { if (!b) return "—"; const [m, d] = b.split("/").map(Num
 
 function cardHTML(c) {
   const fav = state.favs.has(c.n), home = state.island.includes(c.n);
-  return `<div class="card" style="--sc:${SERIES_COLOR[c.s]}" data-open="${c.n}" role="button" tabindex="0" aria-label="${esc(c.es)}, tarjeta ${c.n}">
+  return `<div class="card" style="--sc:${SERIES_COLOR[c.s]}" data-open="${c.n}" role="button" tabindex="0" aria-label="${esc(c.es)}, tarjeta ${cardNo(c)}">
     <div class="band"></div>
     <div class="face">${imgTag(c)}</div>
     ${home ? `<span class="home" title="Vive en tu isla">${ICON.home}</span>` : ""}
     <button class="fav" data-fav="${c.n}" aria-pressed="${fav}" aria-label="${fav ? "Quitar de" : "Añadir a"} favoritos">${ICON.star}</button>
     <div class="meta">
-      <span class="num">${pad(c.n)} · S${c.s}</span>
+      <span class="num">${cardShort(c)}</span>
       <span class="nm">${esc(c.es)}</span>
       ${c.es !== c.en ? `<span class="en">${esc(c.en)}</span>` : ""}
       <span class="tag ${c.v ? "" : "sp"}">${c.v ? esc(c.p) : "Especial"}</span>
@@ -500,7 +508,7 @@ function filtered(base) {
 
 function renderFilters(list) {
   const f = document.getElementById("filters");
-  const s = [0, 1, 2, 3, 4].map(n => `<button class="chip" data-series="${n}" aria-pressed="${state.series === n}">${n ? `<span class="dot" style="background:${SERIES_COLOR[n]}"></span>Serie ${n}` : "Todas las series"}</button>`).join("");
+  const s = [0, ...Object.keys(SERIES).map(Number)].map(n => `<button class="chip" data-series="${n}" aria-pressed="${state.series === n}">${n ? `<span class="dot" style="background:${SERIES_COLOR[n]}"></span>${SERIES[n]}` : "Todas las series"}</button>`).join("");
   const k = [["all", "Vecinos y especiales"], ["v", "Solo vecinos"], ["s", "Solo especiales"]].map(([v, l]) => `<button class="chip" data-kind="${v}" aria-pressed="${state.kind === v}">${l}</button>`).join("");
   const p = `<select id="pers" aria-label="Personalidad"><option value="">Personalidad</option>${PERS.map(x => `<option ${state.pers === x ? "selected" : ""}>${x}</option>`).join("")}</select>`;
   const o = `<select id="sort" aria-label="Ordenar">${[["species","Por especie"],["number","Por nº de tarjeta"],["name","Por nombre"]].map(([v,l]) => `<option value="${v}" ${state.sort === v ? "selected" : ""}>${l}</option>`).join("")}</select>`;
@@ -549,7 +557,7 @@ function renderIsland() {
       <div class="info">
         <button class="nm" data-open="${c.n}">${esc(c.es)}</button>
         <small>${esc(c.sp)} · ${esc(c.p)}</small>
-        <small>${pad(c.n)} · Serie ${c.s}</small>
+        <small>${cardLong(c)}</small>
         <button class="rm" data-island="${c.n}">Mudar</button>
       </div></div>`).join("");
   for (let i = res.length; i < MAX_ISLAND; i++) plots += `<div class="plot free"><b>Parcela ${i + 1}</b>Libre</div>`;
@@ -576,7 +584,7 @@ function renderIsland() {
 
 function renderTally() {
   const v = CARDS.filter(c => c.v).length;
-  document.getElementById("tally").innerHTML = `<span>400 tarjetas</span><span>${v} vecinos</span><span>${400 - v} especiales</span>`;
+  document.getElementById("tally").innerHTML = `<span>${CARDS.length} tarjetas</span><span>${v} vecinos</span><span>${CARDS.length - v} especiales</span>`;
   document.getElementById("c-fav").textContent = state.favs.size;
   document.getElementById("c-isl").textContent = state.island.length + "/10";
 }
@@ -602,7 +610,7 @@ const sheet = document.getElementById("sheet"), scrim = document.getElementById(
 function renderSheet(n) {
   const c = BY_NUM.get(n);
   const fav = state.favs.has(n), home = state.island.includes(n), full = state.island.length >= MAX_ISLAND;
-  const rows = [["Especie", c.sp], ["Tarjeta", pad(c.n) + " · Serie " + c.s]];
+  const rows = [["Especie", c.sp], ["Tarjeta", cardLong(c)]];
   if (c.v) rows.push(["Personalidad", c.p], ["Sexo", c.g === "M" ? "Macho" : "Hembra"], ["Cumpleaños", fmtBday(c.b)], ["Muletilla", "«" + c.c + "»"], ["Afición", c.h], ["Estilo", c.st.join(" · ")]);
   else rows.push(["Tipo", "Personaje especial"], ["Cumpleaños", fmtBday(c.b)]);
   sheet.innerHTML = `<button class="close" data-close aria-label="Cerrar">×</button>
